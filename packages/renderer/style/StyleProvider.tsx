@@ -5,7 +5,7 @@ import {
   createGlobalStyle,
 } from 'styled-components'
 import reset from 'styled-reset'
-import useStore, { State } from '~/store/useStore'
+import { State, useStore } from '~/store'
 import { darkTheme, lightTheme } from './theme'
 
 const GlobalStyle = createGlobalStyle`

@@ -3,8 +3,9 @@ import process from 'node:process'
 import { BrowserWindow, app, dialog, ipcMain } from 'electron'
 import { ApiEvent, Config } from '@shared/types'
 import wait from '@shared/utils/wait'
-import AddonPackageService from '~/services/AddonPackageService'
 import ConfigService from '~/services/ConfigService'
+import PackageService from '~/services/PackageService'
+import HubService from './services/HubService'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -13,10 +14,13 @@ const createWindow = () => {
     height: 800,
     width: 1200,
     frame: false,
+    show: false,
+    backgroundColor: '#1C1C1C',
     titleBarStyle: 'hidden',
     titleBarOverlay: {
       color: '#1c1c1c',
-      symbolColor: '#65d4e7',
+      symbolColor: '#fff',
+      // symbolColor: '#65d4e7',
     },
     webPreferences: {
       nodeIntegration: false, // default in Electron >= 5
@@ -28,6 +32,8 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.cjs'),
     },
   })
+
+  mainWindow.once('ready-to-show', () => mainWindow.show())
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:3000')
@@ -53,10 +59,11 @@ const createWindow = () => {
 
   mainWindow.webContents.once('dom-ready', onReady)
 
-  const addonPackageService = new AddonPackageService()
+  const packageService = new PackageService()
+  const hubService = new HubService()
 
   const attachScanEvents = (event: ApiEvent) => {
-    addonPackageService.on(event, (...args: unknown[]) => {
+    packageService.on(event, (...args: unknown[]) => {
       mainWindow.webContents.send(event, ...args)
     })
   }
@@ -86,15 +93,24 @@ const createWindow = () => {
     const config = await ConfigService.getConfig()
     const root = config.vamInstallPaths?.[0]
 
-    return addonPackageService.scan(root)
+    return packageService.scan(root)
   })
 
   ipcMain.handle('scan:abort', async () => {
-    return addonPackageService.abortScan()
+    return packageService.abortScan()
   })
 
   ipcMain.handle('packages:get', async () => {
-    return addonPackageService.getPackages()
+    return packageService.getPackages()
+  })
+
+  ipcMain.handle('hub:get', async (_, take: number, skip: number) => {
+    try {
+      return hubService.listPackages(take, skip)
+    } catch (err) {
+      console.error(err)
+      return []
+    }
   })
 }
 

@@ -3,12 +3,11 @@ import { ReactNode, useMemo } from 'react'
 import { VscCircleFilled, VscCircleLargeOutline } from 'react-icons/vsc'
 import styled, { css } from 'styled-components'
 import { PackageType } from '@shared/enums'
-import { Image, Package } from '@shared/types'
+import { ExternalImage, HubPackage, Image, Package } from '@shared/types'
 import { View } from '~/components'
 
-export type PackageProps = {
-  data: Package
-  versions: number
+export type PackageComponentProps = {
+  data: Package | HubPackage
   selected: boolean
   onChange: (isSelected: boolean, pkg?: Package) => void
 }
@@ -24,10 +23,9 @@ const Small = styled.span`
 
 export default function PackageComponent({
   data,
-  versions,
   selected,
   onChange,
-}: PackageProps): JSX.Element {
+}: PackageComponentProps): JSX.Element {
   const formattedName = useMemo(() => formatName(data.name), [data.name])
 
   const packageType = useMemo(() => {
@@ -36,24 +34,19 @@ export default function PackageComponent({
 
   return (
     <Container $selected={selected} onClick={() => onChange(!selected)}>
-      <MainPackageImage $images={data.images}>
-        <ImageIcon $selected={selected}>
+      <Thumbnail $images={data.images}>
+        <SelectedIcon $selected={selected}>
           {selected && <VscCircleFilled />}
           <VscCircleLargeOutline />
-        </ImageIcon>
-      </MainPackageImage>
-      <View $justify="space-between" $dir="column">
+        </SelectedIcon>
+      </Thumbnail>
+      <View $justify="space-between" $dir="column" $align="start">
         <InfoHeader>
-          <Title>
-            {formattedName} {versions > 0 ? `(${versions + 1})` : ''}
-          </Title>
+          <Title>{formattedName}</Title>
           <Small>{data.creator.name}</Small>
         </InfoHeader>
-        <Tags>
-          <Tag>{packageType}</Tag>
-        </Tags>
+        <Tag>{packageType}</Tag>
       </View>
-      {/* <Paragraph>{parseDescription(pkg.description)}</Paragraph> */}
     </Container>
   )
 }
@@ -62,7 +55,9 @@ const InfoHeader = styled(View).attrs({
   $justify: 'space-between',
   $align: 'baseline',
 })`
-  height: 2.5em;
+  height: 4em;
+  width: 100%;
+  line-height: 1.3;
 `
 
 const Tag = styled.span`
@@ -75,19 +70,11 @@ const Tag = styled.span`
   background: ${({ theme }) => theme.colors.surface600};
 `
 
-const Tags = styled.div`
-  display: inline-flex;
-  flex-wrap: wrap;
-
-  > ${Tag} {
-    margin-right: 0.2rem;
-  }
-`
-
-const MainImage = styled.img`
+const StyledImage = styled.img`
   border-radius: 0.5rem;
   object-fit: cover;
   width: 100%;
+  box-shadow: 1px 1px 7px rgb(0 0 0 / 20%);
 `
 
 const Container = styled.div<{ $selected: boolean }>`
@@ -100,7 +87,7 @@ const Container = styled.div<{ $selected: boolean }>`
   flex-direction: column;
   justify-content: space-between;
 
-  ${MainImage} {
+  ${StyledImage} {
     transition: transform 0.2s ease-in-out;
   }
 
@@ -110,7 +97,7 @@ const Container = styled.div<{ $selected: boolean }>`
           background-color: ${theme.colors.surface50};
           border: 1px solid ${theme.colors.accent};
 
-          ${MainImage} {
+          ${StyledImage} {
             transform: scale(0.97);
           }
 
@@ -122,14 +109,14 @@ const Container = styled.div<{ $selected: boolean }>`
           &:hover {
             background-color: ${theme.colors.primary850};
 
-            ${MainImage} {
+            ${StyledImage} {
               transform: scale(0.98);
             }
           }
         `}
 `
 
-const ImageIcon = styled.div<{ $selected: boolean }>`
+const SelectedIcon = styled.div<{ $selected: boolean }>`
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
@@ -145,22 +132,31 @@ const ImageIcon = styled.div<{ $selected: boolean }>`
   }
 `
 
-const ImageContainer = styled.div`
+const ThumbnailContainer = styled.div`
   position: relative;
 `
 
-const MainPackageImage: React.FC<{
-  $images?: Omit<Image, 'addonPackageId'>[]
+const Thumbnail: React.FC<{
+  $images?: (Omit<Image, 'packageId'> | ExternalImage)[]
   children?: ReactNode
 }> = ({ $images, children }) => {
-  const sorted = $images?.sort((a, b) => b.sort - a.sort)
-  const mainThumbnail = sorted?.[0]
+  const [main] = useMemo(() => {
+    return ($images ?? []).sort(
+      (a, b) => ((b?.sort as Image) ?? 0) - ((a?.sort as Image) ?? 0)
+    )
+  }, [$images])
+  // const [mainThumbnail] = useMemo(() => {
+
+  //   if ($images?.length > 1) {
+  //     return ($images ?? []).sort((a, b) => b.sort - a.sort)
+  //   }
+  // }, [$images])
 
   return (
-    <ImageContainer>
-      {mainThumbnail && <MainImage src={mainThumbnail.path} />}
+    <ThumbnailContainer>
+      {main && <StyledImage src={main.path} />}
       {children}
-    </ImageContainer>
+    </ThumbnailContainer>
   )
 }
 
@@ -169,17 +165,12 @@ const formatName = (name: string) => {
     transform: (word: string) => {
       const newWord = word.replaceAll(/vam/gi, 'VaM ')
 
-      return newWord.split(' ').reduce((result, splitWord) => {
-        return `${result} ${splitWord[0].toUpperCase() + splitWord.slice(1)}`
-      }, '')
+      return newWord
+        .split(' ')
+        .filter((word) => word.length > 0)
+        .reduce((result, splitWord) => {
+          return `${result} ${splitWord[0].toUpperCase() + splitWord.slice(1)}`
+        }, '')
     },
   })
 }
-
-// const formatDescription = (description: string | null) => {
-//   if (description && description.length > 100) {
-//     return `${description?.substring(0, 100)}...`
-//   }
-
-//   return description
-// }

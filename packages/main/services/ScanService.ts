@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client'
 import EventEmitter from 'events'
 import prettyMs from 'pretty-ms'
+import { connect } from '~/data/client'
 
 export default abstract class ScanService extends EventEmitter {
-  client = new PrismaClient()
+  client = connect()
   shouldAbortScan = false
   #scanStartTime: Date | null = null
   #scanStopTime: Date | null = null

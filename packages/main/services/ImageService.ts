@@ -1,13 +1,13 @@
 import fsp from 'node:fs/promises'
-import path, { ParsedPath } from 'node:path'
+import path from 'node:path'
 import { PrismaClient } from '@prisma/client'
 import slugify from '@sindresorhus/slugify'
 import Zip from 'adm-zip'
 import fs from 'fs-extra'
-import { nanoid } from 'nanoid'
 import sharp from 'sharp'
 import stringSimilarity from 'string-similarity'
-import { ExtensionMap, Image, Manifest } from '@shared/types'
+import { Image, Manifest } from '@shared/types'
+import { PackageExtensionMap } from '~/../shared/maps'
 import ConfigService from './ConfigService'
 
 type ImageData = {
@@ -17,7 +17,7 @@ type ImageData = {
 
 const client = new PrismaClient()
 const imageFileExtensions = ['.jpg', '.png']
-const pkgFileExtensions = Object.values(ExtensionMap).flat()
+const pkgFileExtensions = Object.values(PackageExtensionMap).flat()
 
 /**
  * Saving images involves a few steps:
@@ -33,7 +33,7 @@ export const saveImages = async (
   images: { sort: number; path: string }[],
   zip: Zip,
   dir: string
-): Promise<Omit<Image, 'addonPackageId'>[]> => {
+): Promise<Omit<Image, 'packageId' | 'id'>[]> => {
   const results: (ImageData & {
     sort: number
   })[] = []
@@ -51,7 +51,6 @@ export const saveImages = async (
 
   return files.map((file) => {
     return {
-      id: nanoid(),
       path: file.path,
       sort: Math.round(file.sort),
     }

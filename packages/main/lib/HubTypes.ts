@@ -3,14 +3,26 @@ export type RequestPayload = {
   category: string
   latest_image: 'Y' | 'N'
   location: string
-  page: number
-  perpage: number
+  page: string
+  perpage: string
   sort: string
   source: 'VaM'
 }
 
-type ResponseProps = 'status'
-type PaginationProps =
+export type ErrorResponse = {
+  status: 'error'
+  error: string
+}
+
+export type SuccessResponse = {
+  status: 'success'
+}
+
+export type UnknownResponse = {
+  status?: string
+}
+
+type PaginationProp =
   | 'next_page'
   | 'page'
   | 'perpage'
@@ -18,7 +30,7 @@ type PaginationProps =
   | 'total_found'
   | 'total_pages'
 
-type ParameterProps =
+type ParameterProp =
   | 'action'
   | 'category'
   | 'location'
@@ -34,11 +46,11 @@ type ParameterProps =
   | 'type'
   | 'username'
 
-type Response = Record<ResponseProps, string>
-type Pagination = Record<PaginationProps, string>
-type Parameters = Record<ParameterProps, string>
+// type Response = Record<ResponseProp, string>
+type Pagination = Record<PaginationProp, string>
+type Parameters = Record<ParameterProp, string>
 
-type PackageMetaProps =
+type PackageMetaProp =
   | 'filename'
   | 'file_size'
   | 'licenseType'
@@ -46,18 +58,18 @@ type PackageMetaProps =
   | 'resource_id'
   | 'downloadUrl'
 
-type PackageMeta = Record<PackageMetaProps, string>
+type PackageMeta = Record<PackageMetaProp, string>
 
-type HubFileProps =
-  | PackageMetaProps
+type HubFileProp =
+  | PackageMetaProp
   | 'programVersion'
   | 'urlHosted'
   | 'creatorName'
   | 'attachment_id'
 
-type HubFile = Record<HubFileProps, string>
+export type HubFile = Record<HubFileProp, string>
 
-type ResourceProps =
+export type ResourceProp =
   | 'avatar_date'
   | 'category'
   | 'current_version_id'
@@ -67,7 +79,6 @@ type ResourceProps =
   | 'download_url'
   | 'external_url'
   | 'hubDownloadable'
-  | 'hubFiles'
   | 'hubHosted'
   | 'icon_url'
   | 'image_url'
@@ -96,10 +107,12 @@ type ResourceProps =
   | 'version_string'
   | 'view_count'
 
-type Resource = Record<ResourceProps, string>
+export type Resource = Record<ResourceProp, string> & {
+  hubFiles: HubFile[]
+}
 
-type DependencyProps =
-  | PackageMetaProps
+type DependencyProp =
+  | PackageMetaProp
   | 'packageName'
   | 'version'
   | 'latest_version'
@@ -108,20 +121,20 @@ type DependencyProps =
   | 'latestUrl'
   | 'promotional_link'
 
-type Dependency = Record<DependencyProps, string>
+type Dependency = Record<DependencyProp, string>
 
-export type GetResourcesResponse = Response & {
+export type GetResourcesResponse = SuccessResponse & {
   pagination: Pagination
   parameters: Parameters
   resources: Resource[]
 }
 
-export type GetResourceDetailResponse = Response &
+export type GetResourceDetailResponse = SuccessResponse &
   Resource & {
     dependencies: Record<string, Dependency[]>
   }
 
-export type GetInfoResponse = Response & {
+export type GetInfoResponse = SuccessResponse & {
   category: string[]
   last_update: string
   location: string[]
@@ -139,6 +152,6 @@ export type GetInfoResponse = Response & {
   type: string[]
 }
 
-export type FindPackagesResponse = Response & {
+export type FindPackagesResponse = SuccessResponse & {
   packages: Record<string, PackageMeta>
 }

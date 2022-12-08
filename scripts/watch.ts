@@ -9,7 +9,10 @@ const server = await createServer({
 
 await server.listen()
 
-let electronProcess: ChildProcess | null = null
+const proc = {
+  current: null as ChildProcess | null,
+}
+
 const address = server.httpServer?.address() as AddressInfo
 const env = Object.assign(process.env, {
   VITE_DEV_SERVER_HOST: address.address,
@@ -19,8 +22,8 @@ const env = Object.assign(process.env, {
 const startElectron = {
   name: 'electron-main-watcher',
   writeBundle() {
-    electronProcess && electronProcess.kill()
-    electronProcess = spawn(electron as unknown as string, ['.'], {
+    proc.current && proc.current.kill()
+    proc.current = spawn(electron as unknown as string, ['.'], {
       stdio: 'inherit',
       env,
     })
@@ -43,3 +46,5 @@ await build({
     watch: {},
   },
 })
+
+server.printUrls()

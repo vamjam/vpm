@@ -14,91 +14,61 @@ model Group {
 }
 
 model Package {
-  id           Int            @id @default(autoincrement())
-  createdAt    DateTime
-  name         String
-  birthtime    DateTime?
-  size         Int?
-  path         String
-  scene        Scene[]
-  addonPackage AddonPackage[]
-  group        Group?         @relation(fields: [groupId], references: [id])
-  groupId      Int?
-}
+  id         String    @id
+  importedAt DateTime  @default(now())
+  createdAt  DateTime?
+  name       String
+  size       Int?
+  path       String
 
-model AddonPackage {
-  id            String     @id
-  package       Package    @relation(fields: [packageId], references: [id])
-  packageId     Int
-  hubPackage    HubPackage @relation(fields: [hubPackageId], references: [id])
-  hubPackageId  Int
-  packageTypeId Int?
+  type         Int?
+  version      Int
+  description  String?
+  instructions String?
+  credits      String?
+  licenseType  String?
 
-  version            Int
-  description        String?
-  instructions       String?
-  credits            String?
-  licenseType        String?
-  hasReferenceIssues Boolean?
-
-  creator   Creator @relation(fields: [creatorId], references: [id])
-  creatorId String
-
-  images Image[]
+  creator   Creator     @relation(fields: [creatorId], references: [id])
+  creatorId Int
+  group     Group?      @relation(fields: [groupId], references: [id])
+  groupId   Int?
+  images    Image[]
+  hub       HubPackage?
+  tags      Tag[]
 }
 
 model HubPackage {
-  id            Int            @id @default(autoincrement())
-  releasedAt    DateTime
-  lastUpdatedAt DateTime
-  addonPackage  AddonPackage[]
-
-  packageId          Int
-  resourceId         Int // Used for hub.getResourceDetail
+  id                 Int     @id @default(autoincrement())
+  resourceId         Int
   attachmentId       Int
-  discussionThreadId Int
-
-  imageUrl    String
-  iconUrl     String
-  downloadUrl String
-
-  title           String
-  tagLine         String
-  dependencyCount Int
-  fileSize        Int
-  tags            Tag[]
-  typeId          Int // HubPackageType
-  categoryId      Int // HubCategory
-
+  vamPackageId       Int
+  discussionThreadId Int?
+  downloadUrl        String?
+  title              String
+  tagline            String?
+  dependencyCount    Int?
+  package            Package @relation(fields: [packageId], references: [id])
+  packageId          String  @unique
 }
 
 model Tag {
-  id           Int         @id @default(autoincrement())
-  name         String      @unique
-  hubPackage   HubPackage? @relation(fields: [hubPackageId], references: [id])
-  hubPackageId Int?
-}
-
-model Scene {
-  id        String  @id
-  package   Package @relation(fields: [packageId], references: [id])
-  packageId Int
-
-  image   Image?  @relation(fields: [imageId], references: [id])
-  imageId String?
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  package   Package? @relation(fields: [packageId], references: [id])
+  packageId String?
 }
 
 model Image {
-  id             String       @id
-  path           String
-  sort           Int          @default(0)
-  addonPackage   AddonPackage @relation(fields: [addonPackageId], references: [id])
-  addonPackageId String       @map("addonPackageId")
-  scene          Scene[]
+  id        Int      @id @default(autoincrement())
+  path      String
+  sort      Int      @default(0)
+  package   Package? @relation(fields: [packageId], references: [id])
+  packageId String?
 }
 
 model Creator {
-  id           String         @id
-  name         String         @unique
-  AddonPackage AddonPackage[]
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  avatar  String?
+  Package Package[]
 }

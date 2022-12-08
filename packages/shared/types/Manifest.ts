@@ -1,11 +1,17 @@
 type StringifiedBool = 'true' | 'false'
 
+type ManifestDependency = {
+  [id: string]: {
+    licenseType?: string
+    dependencies?: ManifestDependency
+  }
+}
+
 /**
- * This interface describes the structure of a VaM
- * manifest file, named "manifest.json", and can be found at
- * the root of a ".var" file.
+ * Describes the structure of a VaM manifest file, named
+ * "manifest.json" which can be found at the root of a var file.
  */
-export default interface Manifest {
+type Manifest = {
   licenseType?: string
   creatorName?: string
   packageName?: string
@@ -17,7 +23,9 @@ export default interface Manifest {
   instructions?: string
   promotionalLink?: string
   programVersion?: string
-  contentList?: string[] // An array of file or folder paths to the content contained in this var file.
+  // An array of paths (file and/or folder) to the content
+  // contained in this var file.
+  contentList?: string[]
   dependencies?: ManifestDependency
   hadReferenceIssues?: StringifiedBool
   referenceIssues?: string[]
@@ -26,9 +34,4 @@ export default interface Manifest {
   }
 }
 
-type ManifestDependency = {
-  [id: string]: {
-    licenseType?: string
-    dependencies?: ManifestDependency
-  }
-}
+export default Manifest

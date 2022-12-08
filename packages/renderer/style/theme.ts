@@ -88,6 +88,7 @@ const createColors = (theme: 'dark' | 'light') => {
 
 export const darkTheme: DefaultTheme = {
   name: 'dark',
+  borderRadius: '5px',
   colors: {
     ...colors,
     accent: '#65d4e7',
@@ -97,6 +98,7 @@ export const darkTheme: DefaultTheme = {
 
 export const lightTheme: DefaultTheme = {
   name: 'light',
+  borderRadius: '5px',
   colors: {
     ...colors,
     accent: '#1bbd69',

@@ -3,11 +3,10 @@ import Color from 'color'
 import { HTMLAttributes, useCallback, useEffect, useMemo, useRef } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { ITerminalOptions } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
 import { XTerm } from 'xterm-for-react'
 import Xterm from 'xterm-for-react/dist/src/XTerm'
 import { ApiEvent } from '@shared/types'
-import useStore, { State } from '~/store/useStore'
+import { State, useStore } from '~/store'
 import autoHideScrollbar from '~/utils/autoHideScrollbar'
 
 const termStyle = {
@@ -39,11 +38,10 @@ export default function Console(
   props: HTMLAttributes<HTMLDivElement>
 ): JSX.Element {
   const ref = useRef<Xterm | null>(null)
-  const addonFit = useMemo(() => new FitAddon(), [])
+  // const addonFit = useMemo(() => new FitAddon(), [])
   const { accent, surface } = useTheme().colors
   const darkAccent = useMemo(() => Color(accent).darken(0.2).hex(), [accent])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const termOptions: ITerminalOptions = useMemo(
     () => ({
       disableStdin: true,
@@ -80,10 +78,6 @@ export default function Console(
     [writeln]
   )
 
-  const resizeListener = useCallback(() => {
-    addonFit.fit()
-  }, [addonFit])
-
   useEffect(() => {
     initApiListener('log:info')
     initApiListener('log:warn', chalk.yellow)
@@ -92,22 +86,12 @@ export default function Console(
 
     ref.current?.terminal?.clear()
     writeln('Console started')
-
-    window.addEventListener('resize', resizeListener)
-
-    return () => {
-      window.removeEventListener('resize', resizeListener)
-    }
-  }, [initApiListener, resizeListener, writeln])
-
-  useEffect(() => {
-    addonFit.fit()
-  }, [addonFit, props])
+  }, [initApiListener, writeln])
 
   return (
     <Container {...props}>
       <ConsoleProgress />
-      <XTerm ref={ref} options={termOptions} addons={[addonFit]} />
+      <XTerm ref={ref} options={termOptions} />
     </Container>
   )
 }

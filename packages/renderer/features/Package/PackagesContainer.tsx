@@ -1,10 +1,10 @@
 import { HTMLAttributes, useContext, useEffect } from 'react'
 import styled from 'styled-components'
-import { AddonPackage } from '@shared/types'
+import { Package } from '@shared/types'
 import { SelectedPackagesContext } from '~/components/Layout/Layout'
 import useStore, { State } from '~/store/useStore'
 import autoHideScrollbar from '~/utils/autoHideScrollbar'
-import Package from './Package'
+import PackageComponent from './Package'
 
 export default function PackagesContainer(
   props: HTMLAttributes<HTMLDivElement>
@@ -20,7 +20,7 @@ export default function PackagesContainer(
     }
   }, [getPackages, packages])
 
-  const handleChange = (pkg: AddonPackage) => (selected: boolean) => {
+  const handleChange = (pkg: Package) => (selected: boolean) => {
     if (selected === true) {
       setSelectedPackages({ ...selectedPackages, [pkg.id]: pkg })
     } else if (selected === false) {
@@ -38,7 +38,7 @@ export default function PackagesContainer(
         const selected = Object.keys(selectedPackages ?? {}).includes(pkg.id)
 
         return (
-          <Package
+          <PackageComponent
             key={pkg.id}
             data={pkg}
             versions={pkg?.versions?.length ?? 0}
@@ -51,7 +51,7 @@ export default function PackagesContainer(
   )
 }
 
-const packagesSelector = ({ packages, getPackages }: State) => ({
+const packagesSelector = ({ packages: packages, getPackages }: State) => ({
   packages,
   getPackages,
 })
@@ -62,5 +62,5 @@ const Container = styled.div`
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
   ${autoHideScrollbar('y')}
-  padding: 0 0.5rem;
+  padding: 0.5rem;
 `

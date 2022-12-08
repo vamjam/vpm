@@ -10,8 +10,6 @@ export default function TextBox(
 
 const StyledTextBox = styled.input`
   ${shared}
-  border-color: transparent transparent
-    ${({ theme }) => theme.colors.primary500} transparent;
 
   &:focus,
   &:hover:focus {

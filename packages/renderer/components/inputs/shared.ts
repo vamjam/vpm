@@ -8,10 +8,14 @@ export const active = css`
 
 const shared = css`
   background: ${({ theme }) => theme.colors.primary850};
-  border-radius: 4px;
+  border-radius: ${({ theme }) => theme.borderRadius};
   border-style: solid;
   border-width: 1px;
-  border-color: rgba(255 255 255 / 0.05);
+  /* border-color: rgba(255 255 255 / 0.05); */
+  /* border-color: ${({ theme }) => theme.colors.primary750} transparent
+    ${({ theme }) => theme.colors.primary800} transparent; */
+  border-color: ${({ theme }) => theme.colors.primary800};
+  border-top-color: ${({ theme }) => theme.colors.primary700};
   box-sizing: border-box;
   color: ${({ theme }) => theme.colors.primary};
   font-family: inherit;

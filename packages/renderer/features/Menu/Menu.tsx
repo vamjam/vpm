@@ -1,100 +1,35 @@
-import { forwardRef } from 'react'
+import { HTMLAttributes } from 'react'
+import { FaConnectdevelop } from 'react-icons/fa'
+import { VscLibrary, VscSave } from 'react-icons/vsc'
 import styled from 'styled-components'
-import { View } from '~/components'
-import { Button, ButtonGroup, TextBox } from '~/components/inputs'
-import useStore, { State } from '~/store/useStore'
-import ViewToggle from './ViewToggle'
-
-const menuSelector = ({
-  isScanning,
-  scan,
-  abortScan,
-  vamInstallPaths,
-  setVamInstallPaths,
-}: State) => ({
-  isScanning,
-  scan,
-  abortScan,
-  vamInstallPath: vamInstallPaths[0],
-  setVamInstallPaths,
-})
-
-const Menu = forwardRef<HTMLDivElement>((_, ref) => {
-  const { isScanning, vamInstallPath, setVamInstallPaths, scan, abortScan } =
-    useStore(menuSelector)
-
-  const handleSetVamPath = async () => {
-    const dir = await window.api?.selectFolder()
-
-    if (typeof dir === 'string' && dir.length > 0) {
-      setVamInstallPaths(dir)
-    }
-  }
-
-  const handleScan = () => {
-    if (!isScanning) {
-      scan()
-    }
-  }
-
-  const handleCancelScan = () => {
-    abortScan()
-  }
-
-  return (
-    <Container ref={ref}>
-      <Section>
-        <ViewToggle />
-      </Section>
-      <Section>
-        <ButtonGroup>
-          <Button onClick={handleScan} disabled={isScanning || !vamInstallPath}>
-            Scan
-          </Button>
-          <Button onClick={handleCancelScan} disabled={!isScanning}>
-            Cancel Scan
-          </Button>
-        </ButtonGroup>
-      </Section>
-      <Section>
-        <ButtonGroup>
-          <TextBox readOnly={true} value={vamInstallPath ?? ''} />
-          <Button onClick={handleSetVamPath}>Set VaM Path</Button>
-        </ButtonGroup>
-      </Section>
-    </Container>
-  )
-})
-
-Menu.displayName = 'Menu'
-
-export default Menu
+import { Link, View } from '~/components'
 
 const Container = styled(View)`
-  -ms-overflow-style: scrollbar;
-  -webkit-app-region: drag;
-  justify-content: space-between;
-  margin-right: 140px;
-  padding: 1rem;
+  font-size: small;
+  margin-top: 48px;
 
-  button,
-  input {
-    -webkit-app-region: no-drag;
+  a {
+    display: block;
+    text-align: center;
+
+    svg {
+      display: block;
+      font-size: 2rem;
+      margin: 0 auto;
+    }
   }
 `
 
-const Section = styled.div`
-  display: flex;
-
-  &:last-child {
-    justify-content: flex-end;
-  }
-
-  // Apply margin-right to all sections BUT the very first
-  // one, which uses a ButtonGroup
-  &:not(:first-child) {
-    /* button:first-child {
-      margin-right: 10px;
-    } */
-  }
-`
+export default function Menu(
+  props: HTMLAttributes<HTMLDivElement>
+): JSX.Element {
+  return (
+    <Container flexDirection="column" {...props}>
+      <View flexDirection="column" alignItems="center" justifyContent="center">
+        <Link to="/" icon={<VscLibrary />} label="Installed" />
+        <Link to="/saved" icon={<VscSave />} label="Saved" />
+        <Link to="/hub" icon={<FaConnectdevelop />} label="Hub" />
+      </View>
+    </Container>
+  )
+}

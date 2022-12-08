@@ -1,15 +1,12 @@
 import path from 'node:path'
-import { PrismaClient } from '@prisma/client'
+import { Package } from '@prisma/client'
 import Zip from 'adm-zip'
-import { nanoid } from 'nanoid'
 import { PackageType } from '@shared/enums'
-import {
-  ExtensionMap,
-  FileLocationMap,
-  Manifest,
-  VarPackageScanError,
-} from '@shared/types'
+import { PackageExtensionMap, PackageFileLocationMap } from '@shared/maps'
+import { Manifest, VarPackageScanError } from '@shared/types'
 import wait from '@shared/utils/wait'
+import { PrismaClient } from '~/data/client'
+import * as PackageModel from '~/models/PackageModel'
 import list, { ListedFile } from '~/utils/list'
 import {
   deleteImages,
@@ -19,20 +16,20 @@ import {
 } from './ImageService'
 import ScanService from './ScanService'
 
-export default class AddonPackageService extends ScanService {
+export default class PackageService extends ScanService {
   async deletePackage(id: string) {
     try {
-      const addonPackage = await this.client.addonPackage.delete({
+      const pkg = await this.client.package.delete({
         include: {
           images: true,
-          package: true,
+          hub: true,
         },
         where: {
           id,
         },
       })
 
-      await deleteImages(addonPackage.images.map((i) => i.path))
+      await deleteImages(pkg.images.map((i) => i.path))
     } catch {
       console.error(`Failed to delete package "${id}"`)
     }
@@ -41,14 +38,8 @@ export default class AddonPackageService extends ScanService {
   async scan(root?: string) {
     this.startScan()
 
-    const dirs =
-      root == null
-        ? []
-        : FileLocationMap[PackageType.ADDON_PACKAGE.value].map((dir) =>
-            path.join(root, dir)
-          )
-
     let importedLength = 0
+    const dirs = getDirectories(root)
 
     if (dirs.length === 0) {
       console.error(`Invalid VaM install path: "${root}"`)
@@ -57,13 +48,12 @@ export default class AddonPackageService extends ScanService {
     for await (const dir of dirs) {
       console.log(`Scanning ${dir}`)
 
-      const { new: unscannedPackages } = await getUnscannedPackages(
-        dir,
-        this.client
-      )
+      const unscannedPackages = await getUnscannedPackages(dir, this.client)
 
-      if (unscannedPackages.length > 0) {
-        console.log(`Importing ${unscannedPackages.length} new packages.`)
+      if (unscannedPackages.length === 0) {
+        console.log(`No packages found in "${dir}"`)
+
+        continue
       }
 
       await wait(1)
@@ -77,18 +67,16 @@ export default class AddonPackageService extends ScanService {
   }
 
   async getPackages(take = 20, skip = 0) {
-    return this.client.addonPackage.findMany({
+    return this.client.package.findMany({
       orderBy: {
-        package: {
-          createdAt: 'desc',
-        },
+        importedAt: 'desc',
       },
       skip,
       take,
       include: {
         creator: true,
         images: true,
-        package: true,
+        hub: true,
       },
     })
   }
@@ -125,37 +113,34 @@ export default class AddonPackageService extends ScanService {
       path.join(process.cwd(), 'images', creatorName)
     )
 
-    const addonPackage = await this.client.addonPackage.create({
+    const pkgData: Omit<Package, 'creatorId' | 'groupId'> = {
+      id,
+      version,
+      importedAt: new Date(),
+      description: manifest.description ?? null,
+      type: packageType ?? null,
+      credits: manifest.credits ?? null,
+      licenseType: manifest.licenseType ?? null,
+      instructions: manifest.instructions ?? null,
+      name,
+      path: file.path,
+      createdAt: file.stats.birthtime,
+      size: file.stats.size,
+    }
+
+    const pkg = await this.client.package.create({
       include: {
-        package: true,
         creator: true,
         images: true,
       },
       data: {
-        id,
-        version,
-        description: manifest.description,
-        packageTypeId: packageType,
-        credits: manifest.credits,
-        hasReferenceIssues: manifest.hadReferenceIssues === 'true',
-        licenseType: manifest.licenseType,
-        instructions: manifest.instructions,
-        package: {
-          create: {
-            size: file.stats.size,
-            name,
-            createdAt: new Date(),
-            path: file.path,
-            birthtime: file.stats.birthtime,
-          },
-        },
+        ...pkgData,
         images: {
           create: savedImages,
         },
         creator: {
           connectOrCreate: {
             create: {
-              id: nanoid(),
               name: creatorName,
             },
             where: {
@@ -166,7 +151,7 @@ export default class AddonPackageService extends ScanService {
       },
     })
 
-    return addonPackage
+    return pkg
   }
 
   async #importPackages(packages: ListedFile[]) {
@@ -204,10 +189,10 @@ export default class AddonPackageService extends ScanService {
         } catch (err) {
           const prefix = `Failed to import package: `
 
-          if ((err as Error).message == null) {
-            console.error(prefix, err)
+          if ((err as Error)?.message == null) {
+            console.error(`${prefix}${err}`)
           } else {
-            console.error(prefix, (err as Error).message)
+            console.error(`${prefix}${(err as Error).message}`)
           }
 
           errors.push({
@@ -229,35 +214,32 @@ export default class AddonPackageService extends ScanService {
   }
 }
 
+const getDirectories = (root?: string) => {
+  return root == null
+    ? []
+    : PackageFileLocationMap[PackageType.ADDON_PACKAGE.value].map((dir) =>
+        path.join(root, dir)
+      )
+}
+
 const getUnscannedPackages = async (dir: string, client: PrismaClient) => {
   const files = await list(dir, '.var')
-
-  const ret = {
-    existing: files,
-    new: [] as ListedFile[],
-  }
 
   if (files == null || !Array.isArray(files) || files?.length === 0) {
     console.log(`No packages found in "${dir}"!`)
 
-    return ret
+    return []
   }
 
-  const currentPackages = await client.addonPackage.findMany({
+  const currentPackages = await client.package.findMany({
     select: {
-      package: {
-        select: {
-          path: true,
-        },
-      },
+      path: true,
     },
   })
 
-  ret.new = files.filter(({ path }) => {
-    return !currentPackages.find((p) => p.package.path === path)
+  return files.filter(({ path }) => {
+    return !currentPackages.find((p) => p.path === path)
   })
-
-  return ret
 }
 
 const getManifest = async (zip: Zip): Promise<Manifest | undefined> => {
@@ -288,8 +270,9 @@ const isValidString = (str?: string) => {
   return (
     str != null &&
     typeof str === 'string' &&
-    str !== '' &&
-    (str?.length ?? 0) > 0
+    str.trim() !== '' &&
+    str !== 'undefined' &&
+    str !== 'null'
   )
 }
 
@@ -313,11 +296,13 @@ const parseFileName = (filePath: string): ParsedFileName => {
     throw new Error(`Invalid package name "${name}" ${filePath}`)
   }
 
+  const id = PackageModel.createId(creatorName, name, version)
+
   return {
+    id,
     creatorName,
     name,
     version: Number(version),
-    id: `${creatorName}.${name}.${version}`,
   }
 }
 
@@ -329,12 +314,14 @@ const ContentListPackageMap = {
   [PackageType.ASSET_BUNDLE.value]: (p: string) => {
     return (
       p.includes('Custom\\Assets') &&
-      ExtensionMap[PackageType.ASSET_BUNDLE.value].includes(path.parse(p).ext)
+      PackageExtensionMap[PackageType.ASSET_BUNDLE.value].includes(
+        path.parse(p).ext
+      )
     )
   },
 }
 
-const findContentListForEntry = (
+const getContents = (
   manifest: Manifest,
   contentListIndex = 0,
   maxDepth = 3
@@ -366,13 +353,15 @@ const findContentListForEntry = (
     return Number(result)
   }
 
-  return findContentListForEntry(manifest, contentListIndex + 1)
+  return getContents(manifest, contentListIndex + 1)
 }
 
 const getPackageType = (manifest?: Manifest): number | undefined => {
   if (manifest != null) {
-    return findContentListForEntry(manifest)
+    return getContents(manifest)
   }
+
+  return undefined
 }
 
 type VarFile<T> = T & {
@@ -383,12 +372,10 @@ type VarFile<T> = T & {
 const groupPackagesByCreator = <T>(packages: VarFile<T>[]) => {
   return packages.reduce((acc, curr) => {
     const parsed = parseFileName(curr.name)
+    const [creatorNameSlug] = parsed.id
 
-    if (!acc[parsed.creatorName]) {
-      acc[parsed.creatorName] = []
-    }
-
-    acc[parsed.creatorName].push({
+    acc[creatorNameSlug] = acc[creatorNameSlug] ?? []
+    acc[creatorNameSlug].push({
       ...curr,
       ...parsed,
     })
