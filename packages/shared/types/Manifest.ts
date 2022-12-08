@@ -1,15 +1,24 @@
 type StringifiedBool = 'true' | 'false'
 
 type ManifestDependency = {
+  // The id (Creator.Name.Version format) of the dependency
   [id: string]: {
     licenseType?: string
     dependencies?: ManifestDependency
+    missing?: StringifiedBool
   }
+}
+
+type ReferenceIssue = {
+  // The path to the reference
+  reference: string
+  // Issues typically include a prefix, in all caps, like "BROKEN" or "FIXABLE"
+  issue: string
 }
 
 /**
  * Describes the structure of a VaM manifest file, named
- * "manifest.json" which can be found at the root of a var file.
+ * "meta.json" which can be found at the root of a var file.
  */
 type Manifest = {
   licenseType?: string
@@ -28,7 +37,7 @@ type Manifest = {
   contentList?: string[]
   dependencies?: ManifestDependency
   hadReferenceIssues?: StringifiedBool
-  referenceIssues?: string[]
+  referenceIssues?: ReferenceIssue[]
   customOptions?: {
     preloadMorphs?: StringifiedBool
   }

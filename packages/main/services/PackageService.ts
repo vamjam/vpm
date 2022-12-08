@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { Package } from '@prisma/client'
+import { Creator, Image, Package } from '@prisma/client'
 import Zip from 'adm-zip'
 import { PackageType } from '@shared/enums'
 import { PackageExtensionMap, PackageFileLocationMap } from '@shared/maps'
@@ -16,7 +16,18 @@ import {
 } from './ImageService'
 import ScanService from './ScanService'
 
-export default class PackageService extends ScanService {
+type ScanEvents = {
+  'scan:import': (
+    pkg:
+      | void
+      | (Package & {
+          images: Image[]
+          creator: Creator
+        })
+  ) => void
+}
+
+export default class PackageService extends ScanService<ScanEvents> {
   async deletePackage(id: string) {
     try {
       const pkg = await this.client.package.delete({
@@ -38,7 +49,10 @@ export default class PackageService extends ScanService {
   async scan(root?: string) {
     this.startScan()
 
-    let importedLength = 0
+    const stats = {
+      imported: 0,
+    }
+
     const dirs = getDirectories(root)
 
     if (dirs.length === 0) {
@@ -60,10 +74,10 @@ export default class PackageService extends ScanService {
 
       const { imported } = await this.#importPackages(unscannedPackages)
 
-      importedLength += imported.length
+      stats.imported += imported.length
     }
 
-    await this.stopScan(importedLength)
+    await this.stopScan(stats.imported)
   }
 
   async getPackages(take = 20, skip = 0) {

@@ -72,6 +72,8 @@ export default function Console(
   const initApiListener = useCallback(
     (channel: ApiEvent, ci?: ChalkFunction) => {
       window.api?.on(channel, (_: unknown, data: string) => {
+        console.log(channel, _, data)
+
         writeln(ci ? ci(data) : data)
       })
     },

@@ -9,7 +9,7 @@ import HubService from './services/HubService'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
-const createWindow = () => {
+const createWindow = async () => {
   const mainWindow = new BrowserWindow({
     height: 800,
     width: 1200,
@@ -37,21 +37,20 @@ const createWindow = () => {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:3000')
-    wait(1).then(() => {
-      mainWindow.webContents.openDevTools()
-    })
+    await wait(1)
+
+    mainWindow.webContents.openDevTools()
   } else {
-    // mainWindow.loadFile('index.html')
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
   }
 
   const logCallback = (channel: ApiEvent) => {
-    return (message?: unknown, ...optionalParams: unknown[]) => {
+    return function log(message?: unknown, ...optionalParams: unknown[]) {
       mainWindow.webContents.send(channel, message, ...optionalParams)
     }
   }
 
-  const onReady = () => {
+  const onReady = function onReady() {
     console.log = logCallback('log:info')
     console.warn = logCallback('log:warn')
     console.error = logCallback('log:err')

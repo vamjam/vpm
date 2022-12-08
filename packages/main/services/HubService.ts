@@ -142,7 +142,6 @@ const makeRequest = async <T>(
       })
     })
 
-    req.on('error', reject)
     req.write(body)
     req.end()
   })

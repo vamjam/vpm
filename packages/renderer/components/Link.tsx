@@ -14,12 +14,12 @@ type LinkProps = Omit<RouterLinkProps, 'children'> & {
 const Container = styled(RouterLink)<{ $match: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius};
   background-color: ${({ theme, $match }) =>
-    $match ? theme.colors.primary700 : theme.colors.surface};
+    $match ? theme.colors.primary700 : 'transparent'};
   color: ${({ theme, $match }) =>
     $match ? theme.colors.accent : theme.colors.primary};
   width: 60px;
   height: 56px;
-  margin: 0 0 1rem 1rem;
+  margin: 0.5rem 1rem;
   text-decoration: none;
   font-size: 10px;
 

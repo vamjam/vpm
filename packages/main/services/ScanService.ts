@@ -1,8 +1,18 @@
-import EventEmitter from 'events'
 import prettyMs from 'pretty-ms'
 import { connect } from '~/data/client'
+import TypedEmitter, { EventMap } from '~/utils/TypedEmitter'
 
-export default abstract class ScanService extends EventEmitter {
+const getTime = (d: Date | null) => (d ? d.getTime() : 0)
+
+type ScanEvents = {
+  'scan:start': () => void
+  'scan:stop': () => void
+  'scan:progress': (percent: number) => void
+}
+
+export default abstract class ScanService<
+  T extends EventMap
+> extends TypedEmitter<T & ScanEvents> {
   client = connect()
   shouldAbortScan = false
   #scanStartTime: Date | null = null
@@ -30,6 +40,7 @@ export default abstract class ScanService extends EventEmitter {
 
   startScan() {
     this.shouldAbortScan = false
+
     this.emit('scan:start')
 
     this.#scanStartTime = new Date()
@@ -54,5 +65,3 @@ export default abstract class ScanService extends EventEmitter {
     )
   }
 }
-
-const getTime = (d: Date | null) => (d ? d.getTime() : 0)

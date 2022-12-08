@@ -1,3 +1,5 @@
+import { Allotment } from 'allotment'
+import 'allotment/dist/style.css'
 import { createContext, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
@@ -13,45 +15,16 @@ type SelectedPackageContextType = [
 export const SelectedPackagesContext =
   createContext<SelectedPackageContextType>({} as never)
 
-export default function Layout(): JSX.Element {
-  const [selectedPackages, setSelectedPackages] = useState({})
-
-  return (
-    <SelectedPackagesContext.Provider
-      value={[selectedPackages, setSelectedPackages]}
-    >
-      <Container>
-        <MenuContainer />
-        <PackagesContainer>
-          <DragHandle />
-          <Outlet />
-        </PackagesContainer>
-        <ConsoleContainer />
-      </Container>
-    </SelectedPackagesContext.Provider>
-  )
-}
-
 const Container = styled.div`
-  display: grid;
-  grid-template-areas:
-    'menu packages'
-    'menu console';
-  grid-template-rows: 80% 1fr;
-  grid-template-columns: 60px 1fr;
-  grid-row-gap: 1rem;
-  grid-column-gap: 1rem;
+  display: flex;
+  flex-direction: row;
   height: 100vh;
   margin: 0;
 `
 
-const MenuContainer = styled(Menu)`
-  grid-area: menu;
-`
-
-const PackagesContainer = styled.div`
+const PackagesContainer = styled(Allotment.Pane)`
   background: ${({ theme }) => theme.colors.primary800};
-  grid-area: packages;
+  height: 100%;
 `
 
 const DragHandle = styled.div`
@@ -61,6 +34,25 @@ const DragHandle = styled.div`
   height: 48px;
 `
 
-const ConsoleContainer = styled(Console)`
-  grid-area: console;
-`
+export default function Layout(): JSX.Element {
+  const [selectedPackages, setSelectedPackages] = useState({})
+
+  return (
+    <SelectedPackagesContext.Provider
+      value={[selectedPackages, setSelectedPackages]}
+    >
+      <Container>
+        <Menu />
+        <Allotment vertical={true} defaultSizes={[70, 30]} snap={true}>
+          <PackagesContainer>
+            <DragHandle />
+            <Outlet />
+          </PackagesContainer>
+          <Allotment.Pane minSize={100}>
+            <Console />
+          </Allotment.Pane>
+        </Allotment>
+      </Container>
+    </SelectedPackagesContext.Provider>
+  )
+}
