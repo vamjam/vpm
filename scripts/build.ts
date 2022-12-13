@@ -1,11 +1,13 @@
+import chalk from 'chalk'
 import { build } from 'vite'
+import config from './config.json'
 
-console.log('Starting preload build')
-await build({ configFile: 'packages/preload/vite.config.ts' })
-console.log('Starting main build')
-await build({ configFile: 'packages/main/vite.config.ts' })
-console.log('Finished main build')
-await build({ configFile: 'packages/renderer/vite.config.ts' })
-console.log('Finished renderer build')
+for (const project of Object.keys(config)) {
+  console.log(chalk.dim(`\n\nStarting ${project} build`))
+
+  await build(config[project as keyof typeof config])
+
+  console.log(chalk.dim(`Finished ${project} build`))
+}
 
 process.exit(0)

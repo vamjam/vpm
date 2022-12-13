@@ -1,23 +1,11 @@
 import { ChildProcess, spawn } from 'node:child_process'
-import { AddressInfo } from 'node:net'
 import electron from 'electron'
 import { build, createServer } from 'vite'
-
-const server = await createServer({
-  configFile: 'packages/renderer/vite.config.ts',
-})
-
-await server.listen()
+import config from './config.json'
 
 const proc = {
   current: null as ChildProcess | null,
 }
-
-const address = server.httpServer?.address() as AddressInfo
-const env = Object.assign(process.env, {
-  VITE_DEV_SERVER_HOST: address.address,
-  VITE_DEV_SERVER_PORT: address.port,
-})
 
 const startElectron = {
   name: 'electron-main-watcher',
@@ -25,13 +13,17 @@ const startElectron = {
     proc.current && proc.current.kill()
     proc.current = spawn(electron as unknown as string, ['.'], {
       stdio: 'inherit',
-      env,
+      shell: true,
+      env: {
+        ...process.env,
+        FORCE_COLOR: 'true',
+      },
     })
   },
 }
 
 await build({
-  configFile: 'packages/main/vite.config.ts',
+  ...config.main,
   mode: 'development',
   plugins: [startElectron],
   build: {
@@ -40,11 +32,13 @@ await build({
 })
 
 await build({
-  configFile: 'packages/preload/vite.config.ts',
+  ...config.preload,
   mode: 'development',
   build: {
     watch: {},
   },
 })
 
-server.printUrls()
+const server = await createServer(config.renderer)
+
+await server.listen()
