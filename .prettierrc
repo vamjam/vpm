@@ -4,6 +4,7 @@
   "semi": false,
   "singleQuote": true,
   "importOrder": [
+    "reflect-metadata",
     "^node:(.*)$",
     "<THIRD_PARTY_MODULES>",
     "^@shared/(.*)$",
@@ -11,5 +12,11 @@
     "^[./]"
   ],
   "importOrderSortSpecifiers": true,
-  "importOrderParserPlugins": ["typescript", "jsx", "topLevelAwait"]
+  "importOrderParserPlugins": [
+    "typescript",
+    "jsx",
+    "topLevelAwait",
+    "decorators-legacy",
+    "importAssertions"
+  ]
 }

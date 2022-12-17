@@ -5,7 +5,7 @@ import {
   createGlobalStyle,
 } from 'styled-components'
 import reset from 'styled-reset'
-import { State, useStore } from '~/store'
+import { useDarkMode } from 'usehooks-ts'
 import { darkTheme, lightTheme } from './theme'
 
 const GlobalStyle = createGlobalStyle`
@@ -38,15 +38,13 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
-const selector = ({ theme }: State) => theme
-
 export default function StyleProvider({
   children,
 }: {
   children: ReactNode
 }): JSX.Element {
-  const themeName = useStore(selector)
-  const theme = themeName === 'dark' ? darkTheme : lightTheme
+  const { isDarkMode } = useDarkMode()
+  const theme = isDarkMode ? darkTheme : lightTheme
 
   return (
     <ThemeProvider theme={theme}>

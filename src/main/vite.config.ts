@@ -8,11 +8,10 @@ const nodePrefixedModules = builtinModules.map((name) => `node:${name}`)
 
 const config: UserConfig = {
   root: __dirname,
-  // envDir: '../',
-  // envPrefix: 'PUBLIC',
   plugins: [tsconfigPaths()],
   build: {
     outDir: '../../dist',
+    target: 'node16',
     minify: process.env.NODE_ENV === 'production',
     sourcemap: true,
     rollupOptions: {

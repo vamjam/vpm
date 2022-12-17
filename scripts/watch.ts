@@ -1,7 +1,7 @@
 import { ChildProcess, spawn } from 'node:child_process'
 import electron from 'electron'
 import { build, createServer } from 'vite'
-import config from './config.json'
+import config from './config.json' assert { type: 'json' }
 
 const proc = {
   current: null as ChildProcess | null,

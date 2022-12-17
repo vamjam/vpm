@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "es2022",
+    // "module": "es2022",
+    "module": "ESNext",
     "lib": ["es2021"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,7 +12,9 @@
     "skipLibCheck": true,
     "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "exclude": ["node_modules"]
 }

@@ -1,4 +1,4 @@
-import { Config, ConfigKey, ConfigValue, Package } from '.'
+import { Config, ConfigKey, ConfigValue } from '.'
 
 export const APIEventMap = {
   log: {

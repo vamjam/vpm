@@ -1,24 +1,24 @@
+import 'reflect-metadata'
 import path from 'node:path'
 import process from 'node:process'
 import { BrowserWindow, app, dialog, ipcMain } from 'electron'
+import { IS_DEV } from '@shared/config'
 import logger from '@shared/logger'
 import wait from '@shared/utils/wait'
-import { configService, libraryService } from '~/services'
-
-const { NODE_ENV } = process.env
-const isDev = NODE_ENV !== 'production'
+import { configService } from '~/features/config'
+import { libraryService } from '~/features/library'
 
 const log = logger('electron.main')
 
 log.info(
-  `Starting main process in ${isDev ? 'DEVELOPMENT' : 'PRODUCTION'} mode`
+  `Starting main process in ${IS_DEV ? 'DEVELOPMENT' : 'PRODUCTION'} mode`
 )
 
-if (isDev) {
-  log.debug('runtimes', {
-    Electron: process.versions.electron,
-    Chrome: process.versions.chrome,
-    Node: process.versions.node,
+if (IS_DEV) {
+  log.debug('Runtime versions:', {
+    electron: process.versions.electron,
+    chrome: process.versions.chrome,
+    node: process.versions.node,
   })
 }
 
@@ -37,12 +37,14 @@ const bootstrapServices = async (window: BrowserWindow) => {
   configService.attach(window, ipcMain, 'config:change')
 
   configService.on('config:change', (key) => {
-    if (key === 'library.path') {
+    if (key === 'vam.installPath') {
       libraryService['packages:scan']()
     }
   })
 
   await wait(5)
+
+  log.debug(`Bootstrapping services complete, scanning library now...`)
 
   libraryService['packages:scan']()
 }
@@ -65,7 +67,7 @@ const createWindow = async () => {
       contextIsolation: true, // default in Electron >= 12
       // Disable this, ONLY in DEV, to allow loading of local
       // images when using the dev server
-      webSecurity: isDev ? false : true,
+      webSecurity: IS_DEV ? false : true,
       nodeIntegrationInWorker: true, // multi-threading!
       preload: path.join(__dirname, 'preload.cjs'),
     },
@@ -75,7 +77,7 @@ const createWindow = async () => {
 
   mainWindow.once('ready-to-show', () => mainWindow.show())
 
-  if (isDev) {
+  if (IS_DEV) {
     mainWindow.loadURL('http://localhost:3000')
 
     wait(1).then(() => mainWindow.webContents.openDevTools())

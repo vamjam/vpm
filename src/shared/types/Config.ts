@@ -26,7 +26,7 @@ export const configSchema: Schema<Config> = {
     type: 'object',
     properties: {
       path: {
-        type: 'string',
+        type: ['string', 'null'],
         format: 'uri',
         default: defaults.library.path,
       },
@@ -47,7 +47,7 @@ export const configSchema: Schema<Config> = {
     type: 'object',
     properties: {
       installPath: {
-        type: 'string',
+        type: ['string', 'null'],
         format: 'uri',
         default: defaults.vam.installPath,
       },

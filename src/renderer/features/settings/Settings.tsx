@@ -1,43 +1,29 @@
-import { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { Config, ConfigKey } from '@shared/types'
+import { useCallback } from 'react'
+import { ConfigKey } from '@shared/types'
 import { Heading, List, ListItem, Small, Text, View } from '~/components'
-
-const Label = styled.label`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-`
+import useConfig from '~/hooks/useConfig'
 
 const formatPathToURL = (path?: string) => {
   return `file://${path?.replaceAll(/\\/g, '/')}`
 }
 
 export default function Settings() {
-  const [config, setConfig] = useState<Config | null>(null)
-  const [invalidate, setInvalidate] = useState(false)
+  const { config, invalidateConfig } = useConfig()
 
-  useEffect(() => {
-    if (config == null || invalidate === true) {
-      window.api?.getConfig().then(setConfig)
-    }
+  const handleSetConfig = useCallback(
+    (key: ConfigKey) => async () => {
+      const value = await window.api?.selectFolder()
 
-    setInvalidate(false)
-  }, [config, invalidate])
+      if (value != null) {
+        const fileURL = formatPathToURL(value)
 
-  const handleSetConfig = (key: ConfigKey) => async () => {
-    const value = await window.api?.selectFolder()
+        await window.api?.setConfig(key, fileURL)
 
-    if (value != null) {
-      const fileURL = formatPathToURL(value)
-
-      console.log(key, fileURL)
-
-      window.api?.setConfig(key, fileURL)
-
-      setInvalidate(true)
-    }
-  }
+        invalidateConfig()
+      }
+    },
+    [invalidateConfig]
+  )
 
   return (
     <View flexDirection="column">

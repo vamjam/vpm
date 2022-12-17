@@ -3,10 +3,9 @@ import chalk, { ChalkFunction } from 'chalk'
 import PrettyError from 'pretty-error'
 import pms from 'pretty-ms'
 import * as winston from 'winston'
+import { LOG_CONSOLE_LEVEL, LOG_FILE, LOG_FILE_LEVEL } from './config'
 
-export type Meta = Record<string, unknown> | string | number | symbol
-
-const { LOG_FILE, LOG_FILE_LEVEL, LOG_CONSOLE_LEVEL } = process.env
+export type Meta = object | string | number | symbol
 
 const pe = new PrettyError()
 
@@ -29,38 +28,54 @@ const levelColorMap = (level: string) => {
   return chalk.dim
 }
 
+type TemplateParams = winston.Logform.TransformableInfo & {
+  diff: number
+  label: string
+  meta?: Meta
+  timestamp: string
+}
+
 const customFormatter = ({ useColor = false }) => {
   const colorize = (text: string, ck?: ChalkFunction) =>
     useColor && ck instanceof Function ? ck(text) : text
 
-  return winston.format.printf(
-    ({ level, message, label, timestamp, diff, meta }) => {
-      const levelColor = levelColorMap(level)
-      const header: string[] = [
-        colorize(timestamp, chalk.dim),
-        colorize(level.toUpperCase(), levelColor),
-        colorize(`[${label}]`, chalk.white),
-        colorize(`(${process.pid}):`, chalk.dim),
-      ]
+  const template = ({
+    level,
+    message,
+    label,
+    timestamp,
+    diff,
+    meta,
+  }: TemplateParams) => {
+    const levelColor = levelColorMap(level)
+    const header: string[] = [
+      colorize(timestamp, chalk.dim),
+      colorize(level.toUpperCase(), levelColor),
+      colorize(`[${label}]`, chalk.white),
+      colorize(`(${process.pid}):`, chalk.dim),
+    ]
 
-      const body = [header.join(' '), colorize(message, levelColor)]
+    const body: string[] = [header.join(' '), colorize(message, levelColor)]
 
-      if (meta != null) {
-        if (level === 'error') {
-          if (useColor === true) {
-            body.push(colorize(pe.render(meta), chalk.red))
-          } else {
-            body.push(colorize(JSON.stringify(meta, null, 2), chalk.red))
-          }
+    if (meta != null) {
+      if (level === 'error') {
+        if (useColor === true) {
+          body.push(colorize(pe.render(meta), chalk.red))
         } else {
-          body.push(colorize(JSON.stringify(meta, null, 2), chalk.gray))
+          body.push(colorize(JSON.stringify(meta, null, 2), chalk.red))
         }
+      } else {
+        body.push(colorize(JSON.stringify(meta, null, 2), chalk.gray))
       }
-
-      body.push(colorize(`+${pms(diff, { compact: true })}`, chalk.dim))
-
-      return body.join(' ')
     }
+
+    body.push(colorize(`+${pms(diff, { compact: true })}`, chalk.dim))
+
+    return body.join(' ')
+  }
+
+  return winston.format.printf(
+    template as (info: winston.Logform.TransformableInfo) => string
   )
 }
 
@@ -122,11 +137,11 @@ const log = (
 class Logger {
   constructor(private label: string) {}
 
-  log(level: string, message: string, meta?: Meta | unknown) {
+  log(level: string, message: string, meta?: Meta) {
     return log(level, this.label, message, meta)
   }
 
-  error(message: string, err?: unknown) {
+  error(message: string, err?: Error) {
     return this.log('error', message, err)
   }
 
@@ -147,7 +162,7 @@ export default function logger(label: string) {
   return new Logger(label)
 }
 
-logger.error = (label: string, message: string, err?: unknown) => {
+logger.error = (label: string, message: string, err?: Error) => {
   return log('error', label, message, err)
 }
 

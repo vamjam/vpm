@@ -21,7 +21,7 @@ export const fromKey = (key: string): PackageFromKey => {
       name: creator,
     },
     name,
-    version: Number(version),
+    version: isValidString(version) ? Number(version) : null,
   }
 }
 
