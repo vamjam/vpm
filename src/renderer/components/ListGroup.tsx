@@ -14,9 +14,9 @@ export const ListItem = styled.li`
   padding: 1rem;
   border-radius: 0.25rem;
   margin: 0 2rem 0.33rem;
-  background: ${({ theme }) => theme.colors.surface100};
+  background: var(--colors-surface-3);
 
   &:hover {
-    background: ${({ theme }) => theme.colors.surface300};
+    background: var(--colors-surface-4);
   }
 `

@@ -1,4 +1,5 @@
 import { RouteObject, useRoutes } from 'react-router-dom'
+import { LibraryTypes } from '~/../shared/enums'
 import { Library, Settings } from '~/features'
 import Layout from './Layout'
 
@@ -9,11 +10,15 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Library />,
+        element: <Library type={LibraryTypes.INSTALLED} />,
+      },
+      {
+        path: '/saved',
+        element: <Library type={LibraryTypes.SAVED} />,
       },
       {
         path: '/hub',
-        element: <Library />,
+        element: <Library type={LibraryTypes.HUB} />,
       },
       {
         path: '/settings',

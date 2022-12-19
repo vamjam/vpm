@@ -45,7 +45,7 @@ const Circle = styled.circle.attrs({
     }
   }
 
-  stroke: ${({ theme }) => theme.colors.accent};
+  stroke: var(--colors-text-9);
   stroke-dasharray: 186;
   stroke-dashoffset: 0;
   transform-origin: center;

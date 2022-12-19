@@ -9,6 +9,31 @@ const Repository = {
   creators: () => client.getRepository(Creator),
   images: () => client.getRepository(Image),
   /**
+   * Finds a package with the given name and creator's name.
+   * The result of this query can be used to determine if we
+   * have another version of the same package. If we do, we
+   * can simply save the new version on the existing package
+   * in the database.
+   * @param name Name of the package
+   * @param creatorName Creator's name of the package
+   */
+  findPackageByNameAndCreator: async (name: string, creatorName: string) => {
+    const query: FindOneOptions = {
+      where: {
+        name,
+        creator: {
+          name: creatorName,
+        },
+      },
+      select: {
+        id: true,
+        versions: true,
+      },
+    }
+
+    return client.getRepository(Package).findOne(query)
+  },
+  /**
    *
    * @param url
    * @returns
@@ -18,7 +43,9 @@ const Repository = {
       where: {
         url: tokenize.encodePath(url, ImagePathToken),
       },
-      select: ['id'],
+      select: {
+        id: true,
+      },
     }
 
     return client.getRepository(Image).findOne(query)

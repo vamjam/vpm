@@ -6,11 +6,11 @@ export default function autoHideScrollbar(dir: 'x' | 'y' | 'both') {
     overflow-x: ${dir === 'y' ? 'hidden' : 'auto'};
 
     &::-webkit-scrollbar-thumb {
-      background-color: ${({ theme }) => theme.colors.surface};
+      background-color: var(--colors-surface-1);
     }
 
     &:hover::-webkit-scrollbar-thumb {
-      background-color: ${({ theme }) => theme.colors.primary600};
+      background-color: var(--colors-text-5);
     }
   `
 }

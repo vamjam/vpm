@@ -10,9 +10,4 @@ export default function TextBox(
 
 const StyledTextBox = styled.input`
   ${shared}
-
-  &:focus,
-  &:hover:focus {
-    border-bottom-color: ${({ theme }) => theme.colors.accent};
-  }
 `

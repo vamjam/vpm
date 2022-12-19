@@ -1,7 +1,6 @@
 import got, { Method } from 'got'
-import { HubPackage, Package } from '@shared/entities'
+import { Package } from '@shared/entities'
 import logger from '@shared/logger'
-import PackageUtils from '@shared/utils/PackageUtils'
 import {
   parseFindPackageResponse,
   parseResourceDetailResponse,
@@ -34,26 +33,10 @@ const makeRequest = async <T>(
 
     return undefined
   } catch (err) {
-    log.error(`Error while making request to hub`, err)
+    log.error(`Error while making request to hub`, err as Error)
 
     return undefined
   }
-}
-
-const mergeData = (
-  packages: Package[],
-  hubPackages: Pick<HubPackage, 'resourceId' | 'packageId' | 'hubURL'>[]
-): Package[] => {
-  return packages.map((pkg) => {
-    const pkgKey = PackageUtils.createKey(pkg)
-    // const match = hubPackages.find(
-    //   (hubPkg) => PackageUtils.createKey(hubPkg) === pkgKey
-    // )
-
-    return {
-      ...pkg,
-    }
-  })
 }
 
 class HubService {
@@ -81,23 +64,24 @@ class HubService {
 
       const results = await makeRequest<FindPackagesResponse>('POST', payload)
 
-      return mergeData(packages, parseFindPackageResponse(results))
+      return parseFindPackageResponse(results)
     } catch (err) {
-      log.error(`Error while finding packages`, err)
+      log.error(`Error while finding packages`, err as Error)
 
       return undefined
     }
   }
 
   async listPackages(
-    page = 0,
-    take = 25,
+    page: number,
+    take: number,
     location = 'Hub And Dependencies',
     category = 'Free',
     sort = 'Latest Update'
   ) {
     try {
-      const payload: Omit<RequestPayload, 'source'> = {
+      const payload: RequestPayload = {
+        source: 'VaM',
         action: 'getResources',
         latest_image: 'Y',
         perpage: take.toString(),
@@ -113,7 +97,7 @@ class HubService {
     } catch (err) {
       console.error(err)
 
-      return []
+      return undefined
     }
   }
 }

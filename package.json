@@ -18,6 +18,7 @@
     "images:clean": "rimraf images*/"
   },
   "dependencies": {
+    "@fluentui/react-icons": "^2.0.190",
     "@sindresorhus/slugify": "1.1.2",
     "adm-zip": "^0.5.9",
     "allotment": "^1.17.0",

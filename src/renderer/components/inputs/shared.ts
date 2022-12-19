@@ -1,4 +1,3 @@
-import Color from 'color'
 import { css } from 'styled-components'
 
 export const active = css`
@@ -7,45 +6,26 @@ export const active = css`
 `
 
 const shared = css`
-  background: ${({ theme }) => theme.colors.primary850};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  border-style: solid;
-  border-width: 1px;
-  /* border-color: rgba(255 255 255 / 0.05); */
-  /* border-color: ${({ theme }) => theme.colors.primary750} transparent
-    ${({ theme }) => theme.colors.primary800} transparent; */
-  border-color: ${({ theme }) => theme.colors.primary800};
-  border-top-color: ${({ theme }) => theme.colors.primary700};
-  box-sizing: border-box;
-  color: ${({ theme }) => theme.colors.primary};
+  background: transparent;
+  border-radius: var(--border-radius-2);
+  border: 1px solid var(--colors-surface-6);
+  color: inherit;
+  display: inline-block;
   font-family: inherit;
-  font-size: 14px;
-  min-height: 32px;
-  min-width: 28px;
-  line-height: 32px;
-  padding: 0 10px;
+  font-size: var(--input-font-size);
+  line-height: 1;
+  padding: var(--spacing-5) var(--spacing-6);
   transition-duration: 0.1s;
   transition-property: background-color, border-color;
   transition-timing-function: ease-out;
-
-  &:hover:not(:disabled) {
-    background-color: ${({ theme }) =>
-      Color(theme.colors.surface).lighten(0.4).hex()};
-
-    &button {
-      border-color: ${({ theme }) => theme.colors.primary800};
-    }
-  }
+  vertical-align: middle;
 
   &:disabled {
     background: rgba(0 0 0 / 1%);
-    border-color: ${({ theme }) => theme.colors.primary850};
-    color: ${({ theme }) => theme.colors.primary650};
   }
 
-  svg {
-    width: 18px;
-    height: 18px;
+  &:focus {
+    outline: 2px solid var(--colors-accent-10);
   }
 `
 

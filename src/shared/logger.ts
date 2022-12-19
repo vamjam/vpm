@@ -62,10 +62,14 @@ const customFormatter = ({ useColor = false }) => {
         if (useColor === true) {
           body.push(colorize(pe.render(meta), chalk.red))
         } else {
-          body.push(colorize(JSON.stringify(meta, null, 2), chalk.red))
+          body.push(
+            colorize(JSON.parse(JSON.stringify(meta, null, 2)), chalk.red)
+          )
         }
       } else {
-        body.push(colorize(JSON.stringify(meta, null, 2), chalk.gray))
+        body.push(
+          colorize(JSON.parse(JSON.stringify(meta, null, 2)), chalk.gray)
+        )
       }
     }
 

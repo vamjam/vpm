@@ -1,4 +1,4 @@
-import { API } from '@shared/types'
+import { API } from '@shared/api'
 
 declare global {
   interface Window {

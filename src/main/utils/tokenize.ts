@@ -15,7 +15,7 @@ export const TokenNames = {
 
 export const ImagePathToken = {
   name: TokenNames.IMAGE_CACHE,
-  value: path.normalize(pathToFileURL(IMAGES_DIR).toString()),
+  value: IMAGES_DIR,
 }
 
 export const VamInstallPathToken = {
@@ -36,7 +36,9 @@ export const decodePath = (str: string | undefined | null, token: Token) => {
     throw new Error(`Invalid token supplied to "tokenize.decodePath"`)
   }
 
-  return path.normalize(str).replace(token.name, path.normalize(token.value))
+  return pathToFileURL(
+    path.normalize(str).replace(token.name, path.normalize(token.value))
+  ).toString()
 }
 
 export default {

@@ -1,6 +1,5 @@
 import { ButtonHTMLAttributes } from 'react'
-import styled, { css } from 'styled-components'
-import shared from './shared'
+import styled from 'styled-components'
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   active?: boolean
@@ -14,14 +13,6 @@ const StyledButton = styled.button<ButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  ${shared}
-
-  ${({ active }) =>
-    active &&
-    css`
-      color: ${({ theme }) => theme.colors.black};
-      background-color: ${({ theme }) => theme.colors.accent};
-    `};
 `
 
 export const ButtonGroup = styled.div`
@@ -32,7 +23,6 @@ export const ButtonGroup = styled.div`
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
-    border-right-color: ${({ theme }) => theme.colors.surface};
   }
 
   button:not(:first-child),

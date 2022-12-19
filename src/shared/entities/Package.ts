@@ -12,9 +12,6 @@ import Creator from './Creator'
 import Image from './Image'
 
 export type HubPackage = {
-  // The resourceId is what the Hub uses to identify a package
-  resourceId?: number
-  packageId?: number
   attachmentId?: number
 
   releasedAt?: Date
@@ -24,9 +21,9 @@ export type HubPackage = {
   category?: string
   parentCategoryId?: number
 
-  hubHosted?: boolean
-  hubDownloadable?: boolean
-  hubURL?: string
+  hosted?: boolean
+  downloadable?: boolean
+  url?: string
 
   rating?: number
   viewCount?: number
@@ -38,6 +35,15 @@ export type HubPackage = {
 export default class Package {
   @PrimaryGeneratedColumn()
   id!: number
+
+  @Column('int', { nullable: true })
+  hubPackageId!: number | null
+
+  @Column('int', { nullable: true })
+  hubResourceId!: number | null
+
+  isInstalled?: boolean
+  isSaved?: boolean
 
   @Column('text')
   name!: string
@@ -51,8 +57,12 @@ export default class Package {
   @Column('text', { nullable: true })
   type!: PackageType | null
 
-  @Column('int', { nullable: true })
-  version!: number | null
+  @Column('simple-array', { nullable: true })
+  versions!: number[] | null
+
+  // A conveinent prop for a single version
+  // Not saved to the database.
+  version?: number | null
 
   @Column('int', { nullable: true })
   fileCreatedAt!: Date | null

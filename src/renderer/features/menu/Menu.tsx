@@ -1,27 +1,20 @@
+import {
+  AppFolder28Regular,
+  Apps28Regular,
+  Library28Regular,
+  Settings28Regular,
+} from '@fluentui/react-icons'
 import { HTMLAttributes } from 'react'
-import { FaConnectdevelop } from 'react-icons/fa'
-import { VscLibrary, VscSave } from 'react-icons/vsc'
 import styled from 'styled-components'
 import { Link, View } from '~/components'
 
-const Container = styled(View).attrs({
-  flexDirection: 'column',
-  justifyContent: 'start',
-})`
-  background: ${({ theme }) => theme.colors.surface400};
+const Container = styled(View)`
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--colors-surface-2);
   font-size: small;
-  margin-top: 48px;
-
-  a {
-    display: block;
-    text-align: center;
-
-    svg {
-      display: block;
-      font-size: 2rem;
-      margin: 0 auto;
-    }
-  }
+  padding-top: var(--spacing-11);
 `
 
 const Spacer = styled.div`
@@ -33,11 +26,11 @@ export default function Menu(
 ): JSX.Element {
   return (
     <Container {...props}>
-      <Link to="/" icon={<VscLibrary />} label="Installed" />
-      <Link to="/saved" icon={<VscSave />} label="Saved" />
-      <Link to="/hub" icon={<FaConnectdevelop />} label="Hub" />
+      <Link to="/" icon={<Library28Regular />} label="Installed" />
+      <Link to="/saved" icon={<Apps28Regular />} label="Saved" />
+      <Link to="/hub" icon={<AppFolder28Regular />} label="Hub" />
       <Spacer />
-      <Link to="/settings" icon={<VscSave />} label="Settings" />
+      <Link to="/settings" icon={<Settings28Regular />} label="Settings" />
     </Container>
   )
 }

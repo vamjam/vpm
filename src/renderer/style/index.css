@@ -1,3 +1,9 @@
+@import './theme.css';
+@import './theme.light.css' screen;
+@import './theme.dark.css' screen and (prefers-color-scheme: dark);
+@import './scrollbars.css';
+@import '/components/inputs/properties.css';
+
 @font-face {
   font-family: 'Mona Sans';
   src: url('./assets/Mona-Sans.woff2') format('woff2 supports variations'),
@@ -8,4 +14,17 @@
 
 html {
   font-family: 'Mona Sans';
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--colors-surface-1);
+  color: var(--colors-text-1);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }

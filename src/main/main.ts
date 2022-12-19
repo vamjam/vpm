@@ -96,15 +96,24 @@ const createWindow = async () => {
 
 app
   .whenReady()
-  .then(createWindow)
+  .then(() => {
+    createWindow()
+
+    app
+      .on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+          createWindow()
+        }
+      })
+      .on('window-all-closed', () => {
+        app.quit()
+      })
+      .on('quit', () => {
+        process.exit()
+      })
+  })
   .catch((err) => {
     console.error((err as Error)?.message)
 
     process.exit(0)
   })
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})

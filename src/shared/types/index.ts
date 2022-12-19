@@ -1,5 +1,4 @@
-export { default as API } from './API'
 export { default as Config } from './Config'
+export { default as Library } from './Library'
 
-export * from './API'
 export * from './Config'

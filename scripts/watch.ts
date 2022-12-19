@@ -10,7 +10,8 @@ const proc = {
 const startElectron = {
   name: 'electron-main-watcher',
   writeBundle() {
-    proc.current && proc.current.kill()
+    // proc.current && proc.current.kill(1)
+    proc.current = null && process.exit(0)
     proc.current = spawn(electron as unknown as string, ['.'], {
       stdio: 'inherit',
       shell: true,

@@ -6,11 +6,11 @@ import Router from './Router'
 export default function App(): JSX.Element {
   return (
     <BrowserRouter>
-      <StoreProvider>
-        <StyleProvider>
-          <Router />
-        </StyleProvider>
-      </StoreProvider>
+      {/* <StoreProvider> */}
+      <StyleProvider>
+        <Router />
+      </StyleProvider>
+      {/* </StoreProvider> */}
     </BrowserRouter>
   )
 }

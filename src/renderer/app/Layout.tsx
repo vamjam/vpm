@@ -3,8 +3,7 @@ import 'allotment/dist/style.css'
 import { createContext, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import styled from 'styled-components'
-import { Package } from '@shared/types'
-// import Console from '~/features/Console/Console'
+import { Package } from '@shared/entities'
 import { Menu } from '~/features'
 
 type SelectedPackageContextType = [
@@ -23,12 +22,14 @@ const Container = styled.div`
 `
 
 const PackagesContainer = styled(Allotment.Pane)`
-  background: ${({ theme }) => theme.colors.primary800};
+  display: flex;
+  flex-direction: column;
+  background: var(--colors-surface-3);
   height: 100%;
 `
 
 const DragHandle = styled.div`
-  background-color: ${({ theme }) => theme.colors.surface};
+  background-color: var(--colors-surface-2);
   -webkit-app-region: drag;
   width: 100vw;
   height: 48px;
