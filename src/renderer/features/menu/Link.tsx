@@ -12,19 +12,10 @@ type LinkProps = Omit<RouterLinkProps, 'children'> & {
 }
 
 const Container = styled(RouterLink)<{ $isActive: boolean }>`
-  @keyframes move {
-    from {
-      flex: 1;
-    }
-    to {
-      flex: 2;
-    }
-  }
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
   border-radius: var(--border-radius-1);
   background-color: transparent;
   color: var(--colors-text-11);
@@ -37,13 +28,14 @@ const Container = styled(RouterLink)<{ $isActive: boolean }>`
   transition-property: background, color;
   transition-duration: 200ms;
   transition-timing-function: ease-in-out;
+  overflow: hidden;
 
   ${({ $isActive }) =>
     $isActive &&
     css`
       background: var(--colors-surface-5);
       color: var(--colors-text-5);
-      justify-content: center;
+      /* justify-content: center; */
     `}
   > * {
     /* flex: auto; */
@@ -60,6 +52,38 @@ const Container = styled(RouterLink)<{ $isActive: boolean }>`
   }
 `
 
+const transition = css`
+  transform: translateY(0);
+  transition-property: transform, opacity, color;
+  transition-duration: 100ms;
+  transition-timing-function: ease-in-out;
+`
+
+const Icon = styled.div<{ $isActive: boolean }>`
+  display: block;
+  ${transition}
+
+  ${({ $isActive }) =>
+    $isActive &&
+    css`
+      color: var(--colors-accent-10);
+      transform: translateY(14px);
+    `}
+`
+
+const Label = styled.div<{ $isActive: boolean }>`
+  text-align: center;
+  opacity: 1;
+  ${transition}
+
+  ${({ $isActive }) =>
+    $isActive &&
+    css`
+      opacity: 0;
+      transform: translateY(50px);
+    `}
+`
+
 export default function Link({
   to,
   icon,
@@ -71,8 +95,8 @@ export default function Link({
 
   return (
     <Container to={to} {...props} $isActive={isActive}>
-      {icon}
-      {!isActive && label}
+      <Icon $isActive={isActive}>{icon}</Icon>
+      <Label $isActive={isActive}>{label}</Label>
     </Container>
   )
 }

@@ -6,7 +6,8 @@ import {
 } from '@fluentui/react-icons'
 import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
-import { Link, View } from '~/components'
+import { View } from '~/components'
+import Link from './Link'
 
 const Container = styled(View)`
   align-items: center;
