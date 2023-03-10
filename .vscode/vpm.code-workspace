@@ -1,11 +1,13 @@
 {
   "folders": [
     {
-      "path": ".."
+      "path": "..",
+      "name": "vpm"
+    },
+    {
+      "path": "D:/My Drive/Projects/vpm",
+      "name": "G Drive"
     }
   ],
-  "settings": {
-    "search.useGlobalIgnoreFiles": true,
-    "search.useParentIgnoreFiles": true
-  }
+  "settings": {}
 }

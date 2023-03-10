@@ -1,15 +1,29 @@
 import react from '@vitejs/plugin-react'
-import { UserConfig } from 'vite'
+import path from 'path'
+import { InlineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import pkgJSON from '../../package.json' assert { type: 'json' }
 
-const config: UserConfig = {
-  root: __dirname,
-  plugins: [react(), tsconfigPaths()],
-  // envDir: '../',
-  // envPrefix: 'PUBLIC',
+const root = process.cwd()
+const pkgRoot = path.join(root, 'src/renderer')
+
+const externalize = (deps: Record<string, string>) => {
+  const ext = Object.keys(deps)
+
+  return [/^node:.*/, ...ext.map((dep) => new RegExp(`^${dep}.*`))]
+}
+
+const external = externalize(pkgJSON.dependencies)
+
+const config: InlineConfig = {
+  root: pkgRoot,
+  plugins: [react(), tsconfigPaths({ root: pkgRoot })],
   build: {
-    outDir: '../../dist',
-    target: 'es2022',
+    outDir: path.join(root, 'dist', 'renderer'),
+    emptyOutDir: true,
+    rollupOptions: {
+      external,
+    },
   },
 }
 

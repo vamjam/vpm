@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["DOM", "ES2021"],
+    "paths": {
+      "~/*": ["./*"],
+      "@shared/*": ["../shared/*"]
+    }
+  },
+  "include": ["**/*.ts", "db/*.sql"]
+}

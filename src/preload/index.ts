@@ -1,4 +1,5 @@
 import { contextBridge } from 'electron'
-import api from '@shared/api'
 
-contextBridge.exposeInMainWorld('api', api)
+contextBridge.exposeInMainWorld('api', {
+  test: 'testing',
+})

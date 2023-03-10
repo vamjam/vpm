@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "required": [
+    "db.url",
+    "library.url",
+    "logs.url",
+    "logs.file.level",
+    "logs.console.level",
+    "images.url",
+    "images.quality",
+    "user.name"
+  ],
+  "properties": {
+    "db.url": {
+      "type": "string",
+      "format": "uri",
+      "default": "",
+      "readOnly": true
+    },
+    "library.url": {
+      "type": "string",
+      "format": "uri",
+      "default": "",
+      "readOnly": true,
+      "$comment": "Where the app moves inactive packages to."
+    },
+    "logs.url": {
+      "type": "string",
+      "format": "uri",
+      "readOnly": true,
+      "default": ""
+    },
+    "logs.file.level": {
+      "type": "string",
+      "enum": ["error", "warn", "info", "verbose", "debug"],
+      "default": "warning",
+      "readOnly": true,
+      "$comment": "electron-store doesn't support refs. Fucking horseshit."
+    },
+    "logs.console.level": {
+      "type": "string",
+      "enum": ["error", "warn", "info", "verbose", "debug"],
+      "default": "info",
+      "readOnly": true,
+      "$comment": "electron-store doesn't support refs. Fucking horseshit."
+    },
+    "vam.url": {
+      "type": "string",
+      "format": "uri",
+      "$comment": "Where VaM is installed."
+    },
+    "images.url": {
+      "type": "string",
+      "format": "uri",
+      "default": "",
+      "readOnly": true
+    },
+    "images.quality": {
+      "type": "number",
+      "maximum": 100,
+      "minimum": 1,
+      "default": 70
+    },
+    "user.name": {
+      "type": "string",
+      "default": "SELF"
+    },
+    "user.avatar": {
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

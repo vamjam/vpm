@@ -2,18 +2,17 @@
   "compilerOptions": {
     "target": "es2022",
     "module": "ESNext",
+    "moduleResolution": "Node",
     "lib": ["es2021"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
-    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "jsx": "preserve",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "isolatedModules": true
   },
   "exclude": ["node_modules"]

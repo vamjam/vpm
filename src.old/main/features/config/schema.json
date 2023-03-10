@@ -1,0 +1,57 @@
+{
+  "name": "config.schema",
+  "version": "0.0.1",
+  "properties": {
+    "url": {
+      "type": "object",
+      "properties": {
+        "db": {
+          "type": ["string", "null"],
+          "format": "uri"
+        },
+        "images": {
+          "type": ["string", "null"],
+          "format": "uri"
+        },
+        "library": {
+          "type": ["string", "null"],
+          "format": "uri"
+        },
+        "vam": {
+          "type": ["string", "null"],
+          "format": "uri"
+        }
+      }
+    },
+    "library": {
+      "type": "object",
+      "properties": {
+        "imageQuality": {
+          "type": "number",
+          "maximum": 100,
+          "minimum": 1
+        }
+      }
+    },
+    "theme": {
+      "type": "string",
+      "enum": ["light", "dark", "auto"]
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "creator": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "avatar": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
