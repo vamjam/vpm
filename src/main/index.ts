@@ -6,8 +6,6 @@ import logger from '~/logger'
 
 const log = logger('electron.main')
 
-let mainWindow: BrowserWindow | null = null
-
 log.info(
   `Starting main process in ${IS_DEV ? 'DEVELOPMENT' : 'PRODUCTION'} mode`
 )
@@ -17,7 +15,7 @@ if (IS_DEV) {
 }
 
 const createWindow = async () => {
-  const win = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     height: 800,
     width: 1200,
     frame: false,
@@ -39,20 +37,18 @@ const createWindow = async () => {
     },
   })
 
-  win.once('ready-to-show', () => win.show())
+  mainWindow.once('ready-to-show', () => mainWindow.show())
 
-  // if (IS_DEV) {
-  //   await win.loadURL('http://localhost:5173')
+  if (IS_DEV) {
+    await mainWindow.loadURL('http://localhost:5173')
 
-  //   win.webContents.openDevTools({
-  //     mode: 'detach',
-  //   })
-  // } else {
-  await win.loadFile(path.join(__dirname, 'renderer/index.html'))
-  // }
+    mainWindow.webContents.openDevTools()
+  } else {
+    await mainWindow.loadFile(path.join(__dirname, 'renderer/index.html'))
+  }
 
   ipcMain.handle('dialog:openDirectory', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
     })
 
@@ -60,35 +56,10 @@ const createWindow = async () => {
   })
 
   log.info('Main window created.')
-
-  return win
 }
 
-const onReady = async () => {
-  if (mainWindow != null) {
-    log.info('Main window already exists, skipping creation...')
+app.whenReady().then(createWindow)
 
-    return
-  }
-
-  mainWindow = await createWindow()
-
-  app
-    .on('window-all-closed', () => {
-      app.quit()
-    })
-    .on('quit', () => {
-      mainWindow?.destroy()
-
-      process.exit(0)
-    })
-}
-
-app
-  .whenReady()
-  .then(onReady)
-  .catch((err) => {
-    console.error((err as Error)?.message)
-
-    process.exit(0)
-  })
+app.on('window-all-closed', () => {
+  app.quit()
+})

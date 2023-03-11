@@ -1,11 +1,14 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+///<reference path="./electronmon.d.ts"/>
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import serve, { ESServeOptions } from '@es-exec/esbuild-plugin-serve'
 import { TsconfigPathsPlugin } from '@esbuild-plugins/tsconfig-paths'
+import electronmon from 'electronmon'
 import { BuildOptions, build, context } from 'esbuild'
 import PkgJSON from '../package.json' assert { type: 'json' }
 
+const IS_DEV = process.env.NODE_ENV !== 'production'
 const isWatchMode = process.argv.includes('-w')
 
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -21,10 +24,6 @@ const buildWithESBuild = async ({
   outfile,
   tsconfig,
 }: useESBuildOptions) => {
-  const serveOptions: ESServeOptions = {
-    main: outfile,
-  }
-
   const buildOptions: BuildOptions = {
     entryPoints: [entry],
     bundle: true,
@@ -32,7 +31,8 @@ const buildWithESBuild = async ({
     outfile,
     platform: 'node',
     target: `node${process.versions.node}`,
-    sourcemap: true,
+    minify: !IS_DEV,
+    sourcemap: IS_DEV,
     plugins: [
       TsconfigPathsPlugin({
         absolute: true,
@@ -42,10 +42,7 @@ const buildWithESBuild = async ({
   }
 
   if (isWatchMode) {
-    const ctx = await context({
-      ...buildOptions,
-      plugins: [...(buildOptions?.plugins ?? []), serve(serveOptions)],
-    })
+    const ctx = await context(buildOptions)
 
     await ctx.watch()
   } else {
@@ -67,3 +64,7 @@ const preloadBuildOptions: useESBuildOptions = {
 
 await buildWithESBuild(mainBuildOptions)
 await buildWithESBuild(preloadBuildOptions)
+
+if (isWatchMode) {
+  await electronmon()
+}

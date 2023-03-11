@@ -34,9 +34,9 @@ const { LOG_FILE_LEVEL, LOG_CONSOLE_LEVEL } = process.env as {
   LOG_CONSOLE_LEVEL: Schema['logs.console.level']
 }
 
-// Because I don't want to use an object as the schema, we
-// need to define valid default values for required fields,
-// otherwise the the horseshit won't work.
+// Because I want the JSON Schema to be, you know, JSON, we
+// need to define valid defaults for required fields here.
+// Otherwise the the horseshit won't work.
 schema.properties['db.url'].default = dbURL.toString()
 schema.properties['library.url'].default = libraryURL.toString()
 schema.properties['images.url'].default = imagesURL.toString()

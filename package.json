@@ -9,13 +9,14 @@
     "node": "18.13.0"
   },
   "scripts": {
-    "start": "node_modules/.bin/electron .",
-    "dx": "conc \"yarn dx:main\" \"yarn dx:renderer\"",
-    "dx:main": "rimraf dist && yarn build:main -w",
+    "start": "yarn electron .",
+    "dx": "conc --kill-others-on-fail -n main,renderer \"yarn dx:main\" \"yarn dx:renderer\"",
+    "dx:main": "yarn build:main -w",
     "dx:renderer": "yarn vite --config src/renderer/vite.config.ts",
     "build:main": "node -r dotenv/config --loader ts-node/esm --experimental-json-modules scripts/build.ts",
     "build:renderer": "yarn vite --config src/renderer/vite.config.ts build",
-    "prep": "yarn json2ts ./src/main/config/schema.json ./src/main/config/schema.ts"
+    "prep": "yarn json2ts ./src/main/config/schema.json ./src/main/config/schema.ts",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@fluentui/react-icons": "^2.0.191",
@@ -54,7 +55,6 @@
     "xterm-for-react": "^1.0.4"
   },
   "devDependencies": {
-    "@es-exec/esbuild-plugin-serve": "^0.0.4",
     "@esbuild-plugins/tsconfig-paths": "^0.1.2",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/adm-zip": "^0.5.0",
@@ -72,6 +72,7 @@
     "concurrently": "^7.6.0",
     "csstype": "^3.0.11",
     "electron-builder": "^23.6.0",
+    "electronmon": "^2.0.2",
     "esbuild": "^0.17.11",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
