@@ -7,6 +7,10 @@
     {
       "path": "D:/My Drive/Projects/vpm",
       "name": "G Drive"
+    },
+    {
+      "path": "../../../Users/jamil/AppData/Roaming/vpm",
+      "name": "Local Install"
     }
   ],
   "settings": {}

@@ -34,7 +34,7 @@
     "logs.file.level": {
       "type": "string",
       "enum": ["error", "warn", "info", "verbose", "debug"],
-      "default": "warning",
+      "default": "warn",
       "readOnly": true,
       "$comment": "electron-store doesn't support refs. Fucking horseshit."
     },

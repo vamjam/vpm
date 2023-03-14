@@ -1,8 +1,10 @@
 import path from 'node:path'
 import process from 'node:process'
 import { BrowserWindow, app, dialog, ipcMain } from 'electron'
+import wait from '@shared/utils/wait'
 import { IS_DEV } from '~/config'
 import logger from '~/logger'
+import AssetScanner from './assets/AssetScanner'
 
 const log = logger('electron.main')
 
@@ -56,6 +58,15 @@ const createWindow = async () => {
   })
 
   log.info('Main window created.')
+
+  // Wait 3 seconds for everything to be ready
+  await wait(3)
+
+  try {
+    await AssetScanner.scan()
+  } catch (err) {
+    log.error(`Asset scan failed with:`, err as Error)
+  }
 }
 
 app.whenReady().then(createWindow)

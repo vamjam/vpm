@@ -8,7 +8,10 @@ export type DependencyEntity = {
   version: string
 }
 
-type Dependency = Omit<DependencyEntity, 'id' | 'creatorId' | 'version'> & {
+type Dependency = Omit<
+  DependencyEntity,
+  'id' | 'creatorId' | 'version' | 'assetId'
+> & {
   id: string
   creator: Creator
   version: number | 'latest'

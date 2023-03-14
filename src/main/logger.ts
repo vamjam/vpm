@@ -1,17 +1,16 @@
 import process from 'node:process'
 import url from 'node:url'
+import util from 'node:util'
 import chalk, { ChalkFunction } from 'chalk'
-import PrettyError from 'pretty-error'
 import pms from 'pretty-ms'
+import { serializeError } from 'serialize-error'
 import * as winston from 'winston'
 import config from '~/config'
 
 type Meta = object | string | number | symbol
 
-const prettyErr = new PrettyError()
-
 const timestamp = winston.format.timestamp({
-  format: 'HH:mm:ss A YYYY.MM.DD',
+  format: 'YYYY.MM.DD HH:mm:ss A',
 })
 
 const levelColorMap = (level: string) => {
@@ -32,7 +31,7 @@ const levelColorMap = (level: string) => {
 type TemplateParams = winston.Logform.TransformableInfo & {
   diff: number
   label: string
-  meta?: Meta
+  meta?: Meta[]
   timestamp: string
 }
 
@@ -42,12 +41,12 @@ const customFormatter = (useColor = false) => {
   }
 
   const template = ({
+    diff,
+    label,
     level,
     message,
-    label,
-    timestamp,
-    diff,
     meta,
+    timestamp,
   }: TemplateParams) => {
     const levelColor = levelColorMap(level)
     const header: string[] = [
@@ -61,16 +60,18 @@ const customFormatter = (useColor = false) => {
 
     if (meta != null) {
       if (level === 'error') {
-        if (useColor === true) {
-          body.push(colorize(prettyErr.render(meta), chalk.red))
-        } else {
-          body.push(
-            colorize(JSON.parse(JSON.stringify(meta, null, 2)), chalk.red)
-          )
-        }
+        const serialized = serializeError(meta[0])
+
+        body.push(
+          util.inspect(serialized, {
+            colors: useColor,
+          })
+        )
       } else {
         body.push(
-          colorize(JSON.parse(JSON.stringify(meta, null, 2)), chalk.gray)
+          ...meta.map((m) =>
+            colorize(JSON.parse(JSON.stringify(m, null, 2)), chalk.gray)
+          )
         )
       }
     }
@@ -139,27 +140,24 @@ const log = (
 class Logger {
   constructor(private label: string) {}
 
-  log<T extends unknown[]>(level: string, message: string, ...args: T) {
+  log(level: string, message: string, ...args: unknown[]) {
     return log(level, this.label, message, ...args)
   }
 
-  info<T extends unknown[]>(message: string, ...args: T) {
+  info(message: string, ...args: unknown[]) {
     return this.log('info', message, ...args)
   }
 
-  debug<T extends unknown[]>(message: string, ...args: T) {
+  debug(message: string, ...args: unknown[]) {
     return this.log('debug', message, ...args)
   }
 
-  warn<T extends unknown[]>(message: string, ...args: T) {
+  warn(message: string, ...args: unknown[]) {
     return this.log('warn', message, ...args)
   }
 
   error<T extends Error>(message: string, err?: T) {
-    return this.log('error', message, {
-      message: err?.message ?? 'none',
-      stack: err?.stack ?? 'none',
-    })
+    return this.log('error', message, err)
   }
 }
 

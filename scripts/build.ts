@@ -33,6 +33,9 @@ const buildWithESBuild = async ({
     target: `node${process.versions.node}`,
     minify: !IS_DEV,
     sourcemap: IS_DEV,
+    loader: {
+      ['.sql']: 'text',
+    },
     plugins: [
       TsconfigPathsPlugin({
         absolute: true,

@@ -4,7 +4,7 @@ export type CreatorEntity = {
   avatar: string
 }
 
-type Creator = Omit<CreatorEntity, 'id'> & {
+type Creator = Omit<Partial<CreatorEntity>, 'id'> & {
   id: string
 }
 

@@ -13,9 +13,10 @@ CREATE TABLE IF NOT EXISTS addons (
 
 CREATE TABLE IF NOT EXISTS creators (
   id INTEGER,
-  name TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
   avatar TEXT,
-  PRIMARY KEY(id AUTOINCREMENT)
+  PRIMARY KEY(id AUTOINCREMENT),
+  UNIQUE (name COLLATE NOCASE)
 );
 
 CREATE TABLE IF NOT EXISTS dependencies (
@@ -40,11 +41,13 @@ CREATE TABLE IF NOT EXISTS images (
 
 CREATE TABLE IF NOT EXISTS assets (
   id INTEGER,
+  createdAt INTEGER,
+  size INTEGER,
   name TEXT NOT NULL,
-  version INTEGER NOT NULL,
-  creatorId INTEGER NOT NULL,
+  version INTEGER,
+  creatorId INTEGER,
   url TEXT NOT NULL UNIQUE,
-  type TEXT,
+  type INTEGER,
   FOREIGN KEY(creatorId) REFERENCES creators(id),
   PRIMARY KEY(id AUTOINCREMENT)
 );
@@ -53,9 +56,10 @@ CREATE TABLE IF NOT EXISTS addon_assets (
   addonId INTEGER,
   assetId INTEGER,
   FOREIGN KEY(addonId) REFERENCES addons(id),
+  FOREIGN KEY(assetId) REFERENCES assets(id),
   PRIMARY KEY(addonId, assetId)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS creator_name ON creators (name ASC);
 
-CREATE UNIQUE INDEX IF NOT EXISTS asset_name ON assets (name ASC);
+CREATE INDEX IF NOT EXISTS asset_name ON assets (name ASC);
