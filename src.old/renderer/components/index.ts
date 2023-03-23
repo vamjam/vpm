@@ -1,8 +1,0 @@
-export * from './View'
-export { default as View } from './View'
-export { default as Drawer } from './Drawer'
-export * from './Typography'
-export * from './ListGroup'
-export * as Input from './inputs'
-export { default as Label } from './Label'
-export { default as Icon } from './Icon'

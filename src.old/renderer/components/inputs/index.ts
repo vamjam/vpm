@@ -1,5 +1,0 @@
-export { default as Button } from './Button'
-export * from './Button'
-export { default as TextBox } from './TextBox'
-export { default as Dropdown } from './Dropdown'
-export { default as Slider } from './Slider'

@@ -88,7 +88,7 @@ type Asset = Omit<
   hubHosted: boolean | null
   hubDownloadable: boolean | null
 
-  file: Omit<AssetFile, 'assetId'> | null
+  files: Omit<AssetFile, 'assetId'>[] | null
   dependencies: Asset[] | null
   images: Image[]
 }

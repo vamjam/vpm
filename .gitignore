@@ -23,8 +23,4 @@ bin
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# Project specific
-config.json
-*.db
-images*/
+*.code-workspace
