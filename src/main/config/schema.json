@@ -36,14 +36,14 @@
       "enum": ["error", "warn", "info", "verbose", "debug"],
       "default": "warn",
       "readOnly": true,
-      "$comment": "electron-store doesn't support refs. Fucking horseshit."
+      "$comment": "Tried using $ref for this, but it never worked."
     },
     "logs.console.level": {
       "type": "string",
       "enum": ["error", "warn", "info", "verbose", "debug"],
       "default": "info",
       "readOnly": true,
-      "$comment": "electron-store doesn't support refs. Fucking horseshit."
+      "$comment": "Tried using $ref for this, but it never worked."
     },
     "vam.url": {
       "type": "string",

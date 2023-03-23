@@ -1,12 +1,17 @@
 import Creator from './Creator'
-import Dependency from './Dependency'
 import Image from './Image'
 
 export enum AssetType {
-  AssetBundle = 1,
+  AddonPackage = 1,
+  AssetBundle,
   Clothing,
   Hair,
   Morph,
+  Scene,
+  Script,
+  Subscene,
+  Texture,
+
   AnimationPreset,
   AppearancePreset,
   BreastPreset,
@@ -19,29 +24,73 @@ export enum AssetType {
   PosePreset,
   ScriptPreset,
   SkinPreset,
-  Scene,
-  Script,
-  Subscene,
-  Texture,
 }
+
+export type AssetTypeName = keyof typeof AssetType
 
 export type AssetEntity = {
   id: number
-  createdAt: number | null
-  size: number | null
   name: string
-  version: number | null
   creatorId: number | null
-  url: string
   type: AssetType | null
+  tags: string | null
+
+  // from AddonPackages
+  description: string | null
+  instructions: string | null
+  credits: string | null
+  licenseType: string | null
+
+  // from the VaM API
+  packageId: number | null
+  resourceId: number | null
+  hubHosted: number | null
+  hubDownloadable: number | null
+  releaseDate: number | null
+  discussionThreadId: number | null
 }
 
-type Asset = Omit<AssetEntity, 'id' | 'creatorId' | 'createdAt'> & {
+export type AssetFileEntity = {
+  id: number
+  assetId: number
+  path: string
+  createdAt: number | null
+  updatedAt: number | null
+  size: number | null
+  version: number | null
+}
+
+export type AssetFile = Omit<
+  AssetFileEntity,
+  'id' | 'assetId' | 'createdAt' | 'updatedAt'
+> & {
   id: string
+  assetId: string
   createdAt: Date | null
-  creator: Creator
-  dependencies: Dependency[] | null
-  images: Image[] | null
+  updatedAt: Date | null
+}
+
+type Asset = Omit<
+  AssetEntity,
+  | 'id'
+  | 'creatorId'
+  | 'type'
+  | 'releaseDate'
+  | 'tags'
+  | 'hubHosted'
+  | 'hubDownloadable'
+> & {
+  id: string
+  creator: Creator | null
+  type: AssetTypeName | null
+  releaseDate: Date | null
+  tags: string[] | null
+  hubHosted: boolean | null
+  hubDownloadable: boolean | null
+
+  file: Omit<AssetFile, 'assetId'> | null
+  dependencies: Asset[] | null
+  images: Image[]
 }
 
 export default Asset

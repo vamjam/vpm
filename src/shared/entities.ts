@@ -1,7 +1,6 @@
 export type {
-  AddonAssetEntity as AddonAsset,
-  AddonEntity as Addon,
   AssetEntity as Asset,
+  AssetFileEntity as AssetFile,
   CreatorEntity as Creator,
   DependencyEntity as Dependency,
   ImageEntity as Image,

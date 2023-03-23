@@ -13,19 +13,19 @@ const handleTrailingSlash = (url: URL) => {
   return url
 }
 
-const appDataURL = url.pathToFileURL(
+const APPDATA_URL = url.pathToFileURL(
   path.join(app.getPath('appData'), app.name)
 )
 
-if (!fs.existsSync(appDataURL)) {
-  fs.mkdirSync(appDataURL, { recursive: true })
+if (!fs.existsSync(APPDATA_URL)) {
+  fs.mkdirSync(APPDATA_URL, { recursive: true })
 }
 
-const withTrailingSlash = handleTrailingSlash(appDataURL)
-const imagesURL = new URL('images', withTrailingSlash)
-const libraryURL = new URL('library', withTrailingSlash)
-const dbURL = new URL(`${app.name}.db`, withTrailingSlash)
-const logsURL = url.pathToFileURL(
+const withTrailingSlash = handleTrailingSlash(APPDATA_URL)
+const IMAGES_URL = new URL('images', withTrailingSlash)
+const LIBRARY_URL = new URL('library', withTrailingSlash)
+const DB_URL = new URL(`${app.name}.db`, withTrailingSlash)
+const LOGS_URL = url.pathToFileURL(
   path.join(app.getPath('logs'), `${app.name}.log`)
 )
 
@@ -36,11 +36,11 @@ const { LOG_FILE_LEVEL, LOG_CONSOLE_LEVEL } = process.env as {
 
 // Because I want the JSON Schema to be, you know, JSON, we
 // need to define valid defaults for required fields here.
-// Otherwise the the horseshit won't work.
-schema.properties['db.url'].default = dbURL.toString()
-schema.properties['library.url'].default = libraryURL.toString()
-schema.properties['images.url'].default = imagesURL.toString()
-schema.properties['logs.url'].default = logsURL.toString()
+// Otherwise the horseshit won't work.
+schema.properties['db.url'].default = DB_URL.toString()
+schema.properties['library.url'].default = LIBRARY_URL.toString()
+schema.properties['images.url'].default = IMAGES_URL.toString()
+schema.properties['logs.url'].default = LOGS_URL.toString()
 
 if (!isNullOrEmpty(LOG_FILE_LEVEL)) {
   schema.properties['logs.file.level'].default = LOG_FILE_LEVEL

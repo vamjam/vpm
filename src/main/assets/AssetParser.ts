@@ -1,97 +1,69 @@
-import { Stats } from 'node:fs'
-import fs from 'node:fs/promises'
 import path from 'node:path'
-import { isNullOrEmpty } from '~/../shared/utils/String'
-import { SaveableAsset } from '~/db/Repository'
-import * as VamFileType from '~/vam/FileTypes'
+import { fileURLToPath } from 'node:url'
+import { AssetType } from '@shared/types'
+import Repository, { SaveableAsset } from '~/db/Repository'
+import streamdir from '~/utils/streamdir'
+import ScanLogger from './ScanLogger'
+import AddonParser from './parsers/AddonParser'
+import CommonParser from './parsers/CommonParser'
 
-export type MergeAsset = (asset: SaveableAsset) => SaveableAsset
-export type ParseAsset = (filePath: string) => Promise<MergeAsset>
-
-const getStats = async (filePath: string) => {
-  try {
-    const stats = await fs.stat(filePath)
-
-    return stats
-  } catch (err) {
-    return undefined
-  }
+type ParserParams = {
+  root: URL
+  filePath: string
+  log: ScanLogger
+  type: AssetType
 }
 
-const getSize = (...stats: ({ size: number | null } | undefined)[]) => {
-  return stats?.reduce((acc, curr) => acc + (curr?.size ?? 0), 0)
-}
-
-const AssetParser: Record<string, ParseAsset> = {
-  // Presets
-  '.vap': async (filePath) => {
-    const fileName = path.basename(filePath)
-
-    return (asset) => {
-      if (fileName.startsWith('Preset_')) {
-        return {
-          ...asset,
-          name: fileName.replace('Preset_', ''),
-        }
-      }
-
-      return asset
-    }
-  },
-  // Morphs.
-  // For size, also needs .vmb and .dsf, if they exist.
-  '.vmi': async (filePath) => {
-    const vmb = filePath.replace('.vmi', '.vmb')
-    const dsf = filePath.replace('.vmi', '.dsf')
-
-    const vmbStats = await getStats(vmb)
-    const dsfStats = await getStats(dsf)
-
-    return (asset) => {
-      const size = getSize(vmbStats, dsfStats, asset)
-
-      if (size > 0) {
-        return {
-          ...asset,
-          size,
-        }
-      }
-
-      return asset
-    }
-  },
-  // Clothing and Hair.
-  // For size, also needs .vab and .vaj.
-  '.vam': async (filePath) => {
-    const data = await fs.readFile(filePath, 'utf-8')
-    const json = JSON.parse(data) as VamFileType.vam
-
-    const vab = filePath.replace('.vam', '.vab')
-    const vaj = filePath.replace('.vam', '.vaj')
-
-    const vabStats = await getStats(vab)
-    const vajStats = await getStats(vaj)
-
-    return (asset) => {
-      const size = getSize(vabStats, vajStats, asset)
-
-      if (size > 0) {
-        asset.size = size
-      }
-
-      if (!isNullOrEmpty(json.creatorName)) {
-        asset.creator = {
-          name: json.creatorName,
-        }
-      }
-
-      if (!isNullOrEmpty(json.displayName)) {
-        asset.name = json.displayName
-      }
-
-      return asset
-    }
-  },
-}
+type AssetParser = (params: ParserParams) => Promise<SaveableAsset | undefined>
 
 export default AssetParser
+
+export const parse = async ({
+  root,
+  type,
+  log,
+  exts,
+}: {
+  root: URL
+  type: AssetType
+  log: ScanLogger
+  exts: string[]
+}) => {
+  const assets: number[] = []
+  const errors: Error[] = []
+  const dir = path.join(fileURLToPath(root))
+  const files = streamdir(dir, exts)
+  const parser = type === AssetType.AddonPackage ? AddonParser : CommonParser
+
+  for await (const file of files) {
+    try {
+      const exists = await Repository.findAssetByPath(file.fullPath)
+
+      if (!exists) {
+        const asset = await parser({
+          filePath: file.path,
+          log,
+          root,
+          type,
+        })
+
+        if (asset != null) {
+          const saved = await Repository.saveAsset(root, asset)
+
+          if (saved != null) {
+            assets.push(saved)
+          }
+        }
+      }
+    } catch (err) {
+      log.error(`Unable to save asset "${file}"`, err as Error)
+
+      errors.push(err as Error)
+    }
+  }
+
+  return {
+    assets,
+    errors,
+  }
+}

@@ -1,38 +1,25 @@
-CREATE TABLE IF NOT EXISTS addons (
-  id INTEGER,
-  assetId INTEGER NOT NULL,
-  createdAt INTEGER,
-  size INTEGER,
-  description TEXT,
-  instructions TEXT,
-  credits TEXT,
-  licenseType TEXT,
-  FOREIGN KEY(assetId) REFERENCES assets(id),
-  PRIMARY KEY(id AUTOINCREMENT)
-);
-
 CREATE TABLE IF NOT EXISTS creators (
   id INTEGER,
   name TEXT NOT NULL,
   avatar TEXT,
+  userId INTEGER,
   PRIMARY KEY(id AUTOINCREMENT),
   UNIQUE (name COLLATE NOCASE)
 );
 
 CREATE TABLE IF NOT EXISTS dependencies (
   id INTEGER,
-  assetId INTEGER NOT NULL,
-  creatorId INTEGER NOT NULL,
-  name TEXT NOT NULL,
+  dependentId INTEGER NOT NULL,
+  dependencyId INTEGER NOT NULL,
   version TEXT NOT NULL,
-  FOREIGN KEY(creatorId) REFERENCES creators(id),
-  FOREIGN KEY(assetId) REFERENCES assets(id),
+  FOREIGN KEY(dependentId) REFERENCES assets(id),
+  FOREIGN KEY(dependencyId) REFERENCES assets(id),
   PRIMARY KEY(id AUTOINCREMENT)
 );
 
 CREATE TABLE IF NOT EXISTS images (
   id INTEGER,
-  url TEXT NOT NULL UNIQUE,
+  path TEXT NOT NULL UNIQUE,
   assetId INTEGER,
   sort INTEGER NOT NULL DEFAULT 0,
   FOREIGN KEY(assetId) REFERENCES assets(id),
@@ -41,23 +28,35 @@ CREATE TABLE IF NOT EXISTS images (
 
 CREATE TABLE IF NOT EXISTS assets (
   id INTEGER,
-  createdAt INTEGER,
-  size INTEGER,
   name TEXT NOT NULL,
-  version INTEGER,
   creatorId INTEGER,
-  url TEXT NOT NULL UNIQUE,
   type INTEGER,
+  tags TEXT,
+  description TEXT,
+  instructions TEXT,
+  credits TEXT,
+  licenseType TEXT,
+  packageId INTEGER,
+  resourceId INTEGER,
+  hubHosted INTEGER,
+  hubDownloadable INTEGER,
+  releaseDate INTEGER,
+  discussionThreadId INTEGER,
   FOREIGN KEY(creatorId) REFERENCES creators(id),
-  PRIMARY KEY(id AUTOINCREMENT)
+  PRIMARY KEY(id AUTOINCREMENT),
+  UNIQUE(creatorId, name)
 );
 
-CREATE TABLE IF NOT EXISTS addon_assets (
-  addonId INTEGER,
-  assetId INTEGER,
-  FOREIGN KEY(addonId) REFERENCES addons(id),
+CREATE TABLE IF NOT EXISTS asset_files (
+  id INTEGER,
+  assetId INTEGER NOT NULL,
+  path TEXT NOT NULL UNIQUE,
+  createdAt INTEGER,
+  updatedAt INTEGER,
+  version INTEGER,
+  size INTEGER,
   FOREIGN KEY(assetId) REFERENCES assets(id),
-  PRIMARY KEY(addonId, assetId)
+  PRIMARY KEY(id AUTOINCREMENT)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS creator_name ON creators (name ASC);

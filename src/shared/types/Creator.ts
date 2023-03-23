@@ -1,10 +1,11 @@
 export type CreatorEntity = {
   id: number
-  name: string
-  avatar: string
+  name: string | null
+  avatar: string | null
+  userId: number | null
 }
 
-type Creator = Omit<Partial<CreatorEntity>, 'id'> & {
+type Creator = Omit<CreatorEntity, 'id'> & {
   id: string
 }
 

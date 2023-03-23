@@ -1,0 +1,30 @@
+:root {
+  /** mauveDark 1-6(bg) 12-7(fg) */
+  --color-bg-1: hsl(246, 6%, 9%);
+  --color-bg-2: hsl(240, 5.1%, 11.6%);
+  --color-bg-3: hsl(241, 5%, 14.3%);
+  --color-bg-4: hsl(242, 4.9%, 16.5%);
+  --color-bg-5: hsl(243, 4.9%, 18.8%);
+  --color-bg-6: hsl(244, 4.9%, 21.5%);
+
+  --color-fg-1: hsl(256, 6%, 93.2%);
+  --color-fg-2: hsl(253, 4%, 63.7%);
+  --color-fg-3: hsl(247, 3.4%, 50.7%);
+  --color-fg-4: hsl(252, 4%, 45.2%);
+  --color-fg-5: hsl(247, 4.8%, 32.5%);
+  --color-fg-6: hsl(245, 4.9%, 25.4%);
+
+  /** crimsonDark */
+  --color-ac-1: hsl(335, 20%, 9.6%);
+  --color-ac-2: hsl(335, 32.2%, 11.6%);
+  --color-ac-3: hsl(335, 42.5%, 16.5%);
+  --color-ac-4: hsl(335, 47.2%, 19.3%);
+  --color-ac-5: hsl(335, 50.9%, 21.8%);
+  --color-ac-6: hsl(335, 55.7%, 25.3%);
+  --color-ac-7: hsl(336, 62.9%, 30.8%);
+  --color-ac-8: hsl(336, 74.9%, 39%);
+  --color-ac-9: hsl(336, 80%, 57.8%);
+  --color-ac-10: hsl(339, 84.1%, 62.6%);
+  --color-ac-11: hsl(341, 90%, 67.3%);
+  --color-ac-12: hsl(332, 87%, 96%);
+}

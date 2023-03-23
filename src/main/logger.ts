@@ -137,7 +137,7 @@ const log = (
   return winstonLogger.log(opts)
 }
 
-class Logger {
+export class Logger {
   constructor(private label: string) {}
 
   log(level: string, message: string, ...args: unknown[]) {

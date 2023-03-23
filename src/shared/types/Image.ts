@@ -1,7 +1,7 @@
 export type ImageEntity = {
   id: number
   assetId: number
-  url: string
+  path: string
   sort: number
 }
 

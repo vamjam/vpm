@@ -1,10 +1,7 @@
-export type { default as Addon } from './Addon'
 export type { default as Asset } from './Asset'
 export type { default as Image } from './Image'
 export type { default as Creator } from './Creator'
-export type { default as Dependency } from './Dependency'
 
-export * from './Addon'
 export * from './Asset'
 export * from './Image'
 export * from './Creator'

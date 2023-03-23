@@ -1,8 +1,10 @@
 import path from 'node:path'
 import process from 'node:process'
 import { BrowserWindow, app, dialog, ipcMain } from 'electron'
+import { PageParams } from '@shared/api'
 import wait from '@shared/utils/wait'
 import { IS_DEV } from '~/config'
+import Repository from '~/db/Repository'
 import logger from '~/logger'
 import AssetScanner from './assets/AssetScanner'
 
@@ -49,27 +51,56 @@ const createWindow = async () => {
     await mainWindow.loadFile(path.join(__dirname, 'renderer/index.html'))
   }
 
-  ipcMain.handle('dialog:openDirectory', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-      properties: ['openDirectory'],
-    })
+  log.info('Main window created.')
+}
 
-    return canceled ? undefined : filePaths[0]
+const openDirectoryHandler = async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
   })
 
-  log.info('Main window created.')
+  return canceled ? undefined : filePaths[0]
+}
+
+const createKeyedObject = <T extends { id: string }>(data: T[]) => {
+  return data.reduce((acc, item) => {
+    acc[item['id']] = item
+
+    return acc
+  }, {} as Record<string, T>)
+}
+
+const getAssetsHandler = async (params: PageParams) => {
+  try {
+    const assets = await Repository.getAssets(params)
+
+    return createKeyedObject(assets)
+  } catch (err) {
+    log.error('Unable to get assets!', err as Error)
+
+    return undefined
+  }
+}
+
+app.whenReady().then(async () => {
+  log.info('App ready.')
+
+  ipcMain.handle('dialog:openDirectory', openDirectoryHandler)
+  ipcMain.handle('assets:get', (_, args) =>
+    getAssetsHandler(args as PageParams)
+  )
+
+  createWindow()
 
   // Wait 3 seconds for everything to be ready
   await wait(3)
 
   try {
-    await AssetScanner.scan()
+    await AssetScanner.sync()
   } catch (err) {
     log.error(`Asset scan failed with:`, err as Error)
   }
-}
-
-app.whenReady().then(createWindow)
+})
 
 app.on('window-all-closed', () => {
   app.quit()

@@ -7,5 +7,10 @@
       "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.sql", "**/*.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.sql",
+    "**/*.d.ts",
+    "assets/AssetParser.ts.backup"
+  ]
 }

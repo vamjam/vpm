@@ -1,16 +1,18 @@
-import url from 'node:url'
-import readdir from 'readdirp'
+import readdir, { ReaddirpOptions } from 'readdirp'
 
-export type {
-  EntryInfo as StreamEntryInfo,
-  ReaddirpOptions as StreamOptions,
-} from 'readdirp'
+export type { EntryInfo as StreamEntryInfo } from 'readdirp'
+
+type StreamOptions = Omit<ReaddirpOptions, 'fileFilter'>
 
 export default async function* streamdir(
-  dir: URL,
-  options?: readdir.ReaddirpOptions
+  dir: string,
+  ext: string[],
+  options?: StreamOptions
 ) {
-  for await (const entry of readdir(url.fileURLToPath(dir), options)) {
+  for await (const entry of readdir(dir, {
+    ...options,
+    fileFilter: ext.map((e) => `*${e}`),
+  })) {
     yield entry
   }
 }

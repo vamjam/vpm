@@ -1,16 +1,13 @@
-import styled from 'styled-components'
+import { BrowserRouter } from 'react-router-dom'
+import Router from '~/app/Router'
+import StyleProvider from '~/style/StyleProvider'
 
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-`
-
-export default function App(): JSX.Element {
+export default function App() {
   return (
-    <Container>
-      <h1>I&apos;m an app</h1>
-    </Container>
+    <BrowserRouter>
+      <StyleProvider>
+        <Router />
+      </StyleProvider>
+    </BrowserRouter>
   )
 }

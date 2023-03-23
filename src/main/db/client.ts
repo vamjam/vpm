@@ -1,5 +1,7 @@
 import fs from 'node:fs'
+// import path from 'node:path'
 import knex from 'knex'
+// import sqlite from 'sqlite3'
 import { fileURLToPath } from 'url'
 import * as Entity from '@shared/entities'
 import config from '~/config'
@@ -33,9 +35,8 @@ if (!fs.existsSync(dbFilePath)) {
 
 // Gives us a slightly nicer API to work with
 const client = Object.assign(knexConfig, {
-  addons: () => knexConfig<Entity.Addon>('addons'),
   assets: () => knexConfig<Entity.Asset>('assets'),
-  addon_assets: () => knexConfig<Entity.AddonAsset>('addon_assets'),
+  assetFiles: () => knexConfig<Entity.AssetFile>('asset_files'),
   creators: () => knexConfig<Entity.Creator>('creators'),
   dependencies: () => knexConfig<Entity.Dependency>('dependencies'),
   images: () => knexConfig<Entity.Image>('images'),
