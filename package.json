@@ -1,0 +1,53 @@
+{
+  "name": "vpm",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.9"
+  },
+  "scripts": {
+    "dx": "",
+    "build:config": "yarn json2ts src/main/config/schema.json src/main/config/schema.ts",
+    "lint": "eslint \"packages/**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "drizzle-orm": "^0.45.1",
+    "electron-store": "^11.0.2",
+    "file-stream-rotator": "^1.0.0",
+    "klaw": "^4.1.0"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/klaw": "^3.0.7",
+    "@types/node": "^24.9.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "concurrently": "^9.2.1",
+    "electron": "^40.0.0",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "json-schema-to-typescript": "^15.0.4",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "tsdown": "^0.20.1",
+    "typed-emitter": "^2.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,js,jsx}": [
+      "eslint --max-warnings=0 --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

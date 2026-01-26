@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Config Schema",
+  "type": "object",
+  "required": [
+    "app.env",
+    "app.language",
+    "app.version",
+    "log.level",
+    "data.path",
+    "window.height",
+    "window.width",
+    "window.x",
+    "window.y"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "position": {
+      "type": "string",
+      "enum": ["center", "start", "end"]
+    }
+  },
+  "properties": {
+    "app.env": {
+      "title": "Application Environment",
+      "oneOf": [
+        {
+          "enum": ["production", "development", "test"]
+        }
+      ],
+      "default": "production",
+      "readOnly": true,
+      "description": "The environment in which the application is running."
+    },
+    "app.language": {
+      "title": "Application Language",
+      "type": "string",
+      "default": "en-US",
+      "readOnly": true,
+      "description": "The language code for the application's user interface."
+    },
+    "app.version": {
+      "title": "Application Version",
+      "type": "string",
+      "default": "0.1.0",
+      "readOnly": true,
+      "description": "The current version of the application."
+    },
+    "log.level": {
+      "title": "Logging Level",
+      "oneOf": [
+        {
+          "enum": [0, 1, 2, 3]
+        }
+      ],
+      "default": 1,
+      "description": "The level of logging detail to be recorded by the application."
+    },
+    "data.path": {
+      "title": "Userdata Storage Path",
+      "type": "string",
+      "description": "The file system path where application data is stored."
+    },
+    "window.height": {
+      "title": "Window Height",
+      "type": "number",
+      "default": 800,
+      "description": "The height of the application window in pixels."
+    },
+    "window.width": {
+      "title": "Window Width",
+      "type": "number",
+      "default": 1200,
+      "description": "The width of the application window in pixels."
+    },
+    "window.x": {
+      "title": "Window X Position",
+      "default": "center",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/position"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "description": "The x-coordinate of the application window's position on the screen."
+    },
+    "window.y": {
+      "title": "Window Y Position",
+      "default": "center",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/position"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "description": "The y-coordinate of the application window's position on the screen."
+    }
+  }
+}

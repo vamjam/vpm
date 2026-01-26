@@ -1,0 +1,21 @@
+.form {
+  width: stretch;
+}
+
+.fileInput {
+  position: relative;
+
+  &:hover {
+    button {
+      background: var(--surface-2);
+    }
+  }
+
+  input {
+    pointer-events: none;
+  }
+
+  button {
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,17 @@
+:root {
+  --surface: oklch(100% 0 0 / 0.05);
+  --surface-2: oklch(from var(--surface) l c h / 0.04);
+  --surface-3: oklch(from var(--surface) l c h / 0.1);
+  --surface-4: oklch(from var(--surface) l c h / 0.18);
+  --surface-x: oklch(5% 0.1 0 / 0.15);
+
+  --accent: oklch(70% 0.3 18);
+  --ink: oklch(85% 0 0);
+  --ink-full: oklch(100% 0 0);
+  --ink-muted: oklch(85% 0 0 / 0.5);
+}
+
+body {
+  color: var(--ink);
+  background: linear-gradient(0deg, transparent 80%, oklch(0.19 0.02 354) 100%);
+}

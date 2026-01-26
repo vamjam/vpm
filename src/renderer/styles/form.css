@@ -1,0 +1,43 @@
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--surface);
+  padding: 0 var(--space-5);
+  border-radius: var(--br-4);
+  text-align: right;
+
+  > * {
+    display: flex;
+    align-items: center;
+    padding-block: var(--space-3);
+
+    &:not(:last-child) {
+      border-bottom: 1px solid oklch(80% 0 0 / 0.1);
+    }
+  }
+
+  label {
+    font: inherit;
+
+    span {
+      margin: var(--space-3);
+    }
+  }
+
+  input {
+    app-region: no-drag;
+    padding: var(--space-3);
+    font: inherit;
+    border: none;
+    outline: none;
+    background: none;
+    width: stretch;
+    text-align: right;
+  }
+
+  input[type='file'] {
+    appearance: none;
+    opacity: 0;
+  }
+}

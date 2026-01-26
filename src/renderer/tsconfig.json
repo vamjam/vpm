@@ -1,0 +1,24 @@
+{
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "preserve",
+    "paths": {
+      "~/*": ["./*", "../main/*"],
+      "@shared/*": ["../shared/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../main"
+    }
+  ],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"]
+}

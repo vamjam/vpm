@@ -1,0 +1,45 @@
+.container {
+  background: var(--surface);
+  border-radius: var(--br-6);
+  backdrop-filter: blur(20px);
+
+  &.inverse {
+    background: var(--surface-x);
+  }
+
+  display: flex;
+  align-items: center;
+  padding: 3px;
+
+  button {
+    background: transparent;
+    display: flex;
+    align-items: center;
+    padding-inline: 8px;
+
+    &.active:after {
+      opacity: 0;
+    }
+
+    &:after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 20px;
+      position: relative;
+      left: 8px;
+      background: var(--ink);
+      opacity: 0.15;
+    }
+
+    &:last-child {
+      &:after {
+        display: none;
+      }
+    }
+
+    svg {
+      color: currentColor;
+    }
+  }
+}

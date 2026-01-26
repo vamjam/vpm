@@ -1,0 +1,41 @@
+button {
+  app-region: no-drag;
+  padding: 5px;
+  border: none;
+  border-radius: var(--br-5);
+  background: var(--surface);
+  color: var(--ink-full);
+  font: inherit;
+  font-weight: 400;
+
+  &:hover {
+    background: var(--surface-3);
+  }
+
+  &:active {
+    background: var(--surface);
+  }
+
+  &.active {
+    background: var(--surface-4);
+  }
+
+  &:disabled {
+    pointer-events: none;
+  }
+
+  svg {
+    pointer-events: none;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.primary {
+  color: var(--accent);
+
+  &:disabled {
+    pointer-events: none;
+    color: oklch(from var(--accent) 80% 0 h / 0.5);
+  }
+}

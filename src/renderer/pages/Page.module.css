@@ -1,0 +1,39 @@
+.container {
+  padding-inline: var(--space-3);
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100vh;
+}
+
+.icon {
+  padding: var(--space-2);
+  border-radius: var(--br-4);
+  background: linear-gradient(0deg, #b3b3b391, #a1a1a1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid oklch(100% 0 0 / 0.2);
+  box-shadow: 0 0 12px 0px oklch(0% 0 0 / 0.2);
+  margin-bottom: 0.5rem;
+
+  svg {
+    width: 42px;
+    height: 42px;
+    color: var(--ink-full);
+  }
+}
+
+.well {
+  margin-block: var(--space-3);
+
+  h2 {
+    font-weight: 600;
+    margin: 0.35rem 0;
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--fs-2);
+    opacity: 0.5;
+  }
+}

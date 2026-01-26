@@ -1,0 +1,28 @@
+:root {
+  --br-1: 0.125rem;
+  --br-2: 0.25rem;
+  --br-3: 0.5rem;
+  --br-4: 0.75rem;
+  --br-5: 1rem;
+  --br-6: 1.25rem;
+
+  --corner-shape: superellipse(0.6);
+
+  --space-1: 0.125rem;
+  --space-2: 0.25rem;
+  --space-3: 0.5rem;
+  --space-4: 0.75rem;
+  --space-5: 1rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 3rem;
+
+  --fs-1: 0.625rem;
+  --fs-2: 0.75rem;
+  --fs-3: 0.875rem;
+  --fs-4: 1rem;
+  --fs-5: 1.25rem;
+  --fs-6: 1.5rem;
+
+  --color-red: oklch(70% 0.3 29);
+}

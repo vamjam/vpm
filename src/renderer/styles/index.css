@@ -1,0 +1,34 @@
+@import 'colors.light.css' screen and (prefers-color-scheme: light);
+@import 'colors.dark.css' screen and (prefers-color-scheme: dark);
+@import '@fontsource-variable/inter';
+@import './form.css';
+@import './tokens.css';
+
+* {
+  -webkit-font-smoothing: auto;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter Variable', sans-serif;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+input,
+button {
+  font-family: inherit;
+}
+
+a {
+  color: currentColor;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
