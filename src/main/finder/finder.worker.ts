@@ -11,4 +11,5 @@ for await (const file of klaw(args.dir, {
   depthLimit: -1,
   preserveSymlinks: true,
 })) {
+  
 }
