@@ -1,6 +1,9 @@
 import { t } from '../main/db/drizzle.ts'
 import * as utils from './utils.ts'
 
+export type Asset = typeof assets.$inferSelect
+export type Creator = typeof creators.$inferSelect
+
 export enum AssetType {
   AddonPackage = 'addon_package',
   AnimationPreset = 'animation_preset',
@@ -56,8 +59,6 @@ export const assets = t.sqliteTable(
     t.index('ix_type').on(table.type),
   ],
 )
-
-export type Asset = typeof assets.$inferSelect
 
 export const creators = t.sqliteTable(
   'creators',

@@ -1,8 +1,5 @@
 import { type IpcRenderer } from 'electron'
 import assetAPI from './generated/asset.api.ts'
-// import libraryAPI from './generated/library.api.ts'
-// import pluginAPI from './generated/plugin.api.ts'
-// import userAPI from './generated/user.api.ts'
 import {
   type WindowControlAPI,
   createWindowControls,
@@ -13,7 +10,7 @@ export type { WindowControlAction } from './window-control.api.ts'
 type ServiceAPI = typeof assetAPI
 
 const CACHEABLE_METHOD_TTLS: Partial<Record<keyof ServiceAPI, number>> = {
-  'assets.getByType': 5_000,
+  'assets.list': 5_000,
 }
 
 // const serviceEventMap: (keyof ServiceEventMap)[] = [

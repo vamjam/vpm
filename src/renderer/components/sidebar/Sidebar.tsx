@@ -1,42 +1,44 @@
+import {
+  Apps24Regular as AddonsIcon,
+  AppFolder24Regular as HubIcon,
+  Options24Regular as PresetsIcon,
+  MoviesAndTv24Regular as ScenesIcon,
+  Settings24Regular as SettingsIcon,
+} from '@fluentui/react-icons'
+import { AssetType } from '@shared/types.ts'
 import { AnchorHTMLAttributes, ReactNode } from 'react'
 import { Link as RouterLink, useLocation } from 'react-router'
-import BookIcon from 'symbols/BookIcon'
-import useLibraries from '~/hooks/useLibraries.ts'
-import * as Icons from '~/icons.ts'
 import styles from './Sidebar.module.css'
 
 export default function Sidebar() {
-  const libraries = useLibraries()
-
   return (
     <div className={styles.container}>
+      <div className={styles.logo}>vpm</div>
       <nav>
-        {(libraries?.length ?? 0) > 0 && (
-          <>
-            <h5>Libraries</h5>
-            <ul>
-              {libraries?.map((library) => (
-                <NavItem key={library.id} to={`/library/${library.id}`}>
-                  <BookIcon />
-                  {library.name}
-                </NavItem>
-              ))}
-            </ul>
-          </>
-        )}
-        <h5>Settings</h5>
+        <ul>
+          <NavItem to={assetLink(AssetType.Scene)}>
+            <ScenesIcon />
+            Scenes
+          </NavItem>
+          <NavItem to={assetLink(AssetType.AddonPackage)}>
+            <AddonsIcon />
+            Addons
+          </NavItem>
+          <NavItem to="/assets/presets">
+            <PresetsIcon />
+            Presets
+          </NavItem>
+        </ul>
+        <ul>
+          <NavItem to="/hub">
+            <HubIcon />
+            Hub
+          </NavItem>
+        </ul>
         <ul>
           <NavItem to="/settings/libraries">
-            <Icons.LibrarySettingsIcon />
-            Libraries
-          </NavItem>
-          <NavItem to="/settings/profile">
-            <Icons.ProfileSettingsIcon />
-            Profile
-          </NavItem>
-          <NavItem to="/settings/preferences">
-            <Icons.PreferencesSettingsIcon />
-            Preferences
+            <SettingsIcon />
+            Settings
           </NavItem>
         </ul>
       </nav>
@@ -61,4 +63,8 @@ function NavItem({ to, children, ...anchorProps }: LinkProps) {
       </RouterLink>
     </li>
   )
+}
+
+function assetLink(assetType: AssetType) {
+  return `/assets/${assetType}`
 }

@@ -1,13 +1,13 @@
 import * as Icons from '~/icons.ts'
 import Page from '../Page.tsx'
 
-export default function Preferences() {
+export default function Settings() {
   return (
     <Page
       header={{
-        title: 'Preferences',
+        title: 'Settings',
         icon: <Icons.PreferencesSettingsIcon />,
-        description: 'Manage your account preferences.',
+        description: 'Manage your settings.',
       }}></Page>
   )
 }

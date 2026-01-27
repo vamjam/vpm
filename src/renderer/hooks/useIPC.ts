@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
 import { type API } from '@shared/api.ts'
-import log from '~/logger.ts'
+import { useEffect, useState } from 'react'
 
 const TIMEOUT_SECONDS = 10
 
@@ -31,7 +30,7 @@ export default function useIPC<
       })
       .catch((err) => {
         if (err?.name === 'AbortError') {
-          log.info(`API call to ${String(method)} was aborted`)
+          console.info(`API call to ${String(method)} was aborted`)
         } else {
           setError(err as Error)
         }
@@ -63,7 +62,7 @@ async function callAbortableAPI<
     throw new DOMException('Aborted', 'AbortError')
   }
 
-  const apiMethod = window.api[method] as (...args: T) => Promise<R>
+  const apiMethod = window.api[method] as (...args: T) => Promise<R | void>
 
   return new Promise<R>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
@@ -85,7 +84,7 @@ async function callAbortableAPI<
     apiMethod(...args)
       .then((result) => {
         cleanup()
-        resolve(result)
+        resolve(result as R)
       })
       .catch((err) => {
         cleanup()

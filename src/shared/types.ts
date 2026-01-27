@@ -1,11 +1,7 @@
-import * as entity from './entities.ts'
+import { Asset as AssetEntity, Creator } from './entities.ts'
 
-export type Scene = typeof entity.scenes.$inferSelect
+export { AssetType, type Creator } from './entities.ts'
 
-export type AddonPackage = typeof entity.addonPackages.$inferSelect
-
-export type Preset = typeof entity.presets.$inferSelect
-
-export type Creator = typeof entity.creators.$inferSelect
-
-export { PresetType, AssetType } from './entities.ts'
+export type Asset = AssetEntity & {
+  creator?: Creator | null
+}

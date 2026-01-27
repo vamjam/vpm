@@ -12,7 +12,7 @@ const useStore = create<Store>()(
       ...createWindowSlice(set),
     }),
     {
-      name: 'filejam',
+      name: 'vpm',
     },
   ),
 )
