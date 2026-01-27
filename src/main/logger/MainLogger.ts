@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { app } from 'electron'
+import * as electron from 'electron'
 import * as FileStreamRotator from 'file-stream-rotator'
 import ConsoleLogger from './ConsoleLogger.ts'
 import { LogLevel, LoggerConfig } from './types.ts'
@@ -8,7 +8,7 @@ type FileRotator = ReturnType<typeof FileStreamRotator.getStream>
 
 const defaultConfig: LoggerConfig = {
   level: LogLevel.INFO,
-  dir: app.getPath('logs'),
+  dir: electron.app.getPath('logs'),
   verbose: false,
   fileExtension: '.log',
   dateFormat: 'YYYYMMDD',

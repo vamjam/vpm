@@ -1,5 +1,5 @@
 import { type IpcRenderer } from 'electron'
-// import assetAPI from './generated/asset.api.ts'
+import assetAPI from './generated/asset.api.ts'
 // import libraryAPI from './generated/library.api.ts'
 // import pluginAPI from './generated/plugin.api.ts'
 // import userAPI from './generated/user.api.ts'
@@ -10,21 +10,16 @@ import {
 
 export type { WindowControlAction } from './window-control.api.ts'
 
-type ServiceAPI = typeof libraryAPI &
-  typeof pluginAPI &
-  typeof userAPI &
-  typeof assetAPI
-export type ServiceEventMap = LibraryServiceEvents
+type ServiceAPI = typeof assetAPI
 
 const CACHEABLE_METHOD_TTLS: Partial<Record<keyof ServiceAPI, number>> = {
-  'library.list': 5_000,
-  'collection.list': 5_000,
+  'assets.getByType': 5_000,
 }
 
-const serviceEventMap: (keyof ServiceEventMap)[] = [
-  'library.created',
-  'library.updated',
-]
+// const serviceEventMap: (keyof ServiceEventMap)[] = [
+//   'library.created',
+//   'library.updated',
+// ]
 
 type IPCMethods = {
   [K in keyof ServiceAPI]: (
@@ -32,12 +27,7 @@ type IPCMethods = {
   ) => Promise<Awaited<ReturnType<ServiceAPI[K]>>>
 }
 
-const keys = [
-  ...Object.keys(libraryAPI),
-  ...Object.keys(pluginAPI),
-  ...Object.keys(userAPI),
-  ...Object.keys(assetAPI),
-]
+const keys = [...Object.keys(assetAPI)]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handlers = new Map<string, any>()
@@ -104,39 +94,39 @@ export function createAPI(ipcRenderer: IpcRenderer) {
       }
       return acc
     }, {} as IPCMethods),
-    on<K extends keyof ServiceEventMap>(
-      event: K,
-      id: string,
-      handler: ServiceEventMap[K],
-    ) {
-      if (!serviceEventMap.includes(event)) {
-        throw new Error(`Unsupported event type: ${String(event)}`)
-      }
+    // on<K extends keyof ServiceEventMap>(
+    //   event: K,
+    //   id: string,
+    //   handler: ServiceEventMap[K],
+    // ) {
+    //   if (!serviceEventMap.includes(event)) {
+    //     throw new Error(`Unsupported event type: ${String(event)}`)
+    //   }
 
-      const handlerToSave = (
-        _e: unknown,
-        ...args: Parameters<ServiceEventMap[K]>
-      ) => {
-        try {
-          handler(...args)
-        } catch (error) {
-          console.error(`Error in handler for event ${String(event)}:`, error)
-        }
-      }
+    //   const handlerToSave = (
+    //     _e: unknown,
+    //     ...args: Parameters<ServiceEventMap[K]>
+    //   ) => {
+    //     try {
+    //       handler(...args)
+    //     } catch (error) {
+    //       console.error(`Error in handler for event ${String(event)}:`, error)
+    //     }
+    //   }
 
-      handlers.set(id, handlerToSave)
+    //   handlers.set(id, handlerToSave)
 
-      ipcRenderer.on(event, handlerToSave)
-    },
-    off<K extends keyof ServiceEventMap>(event: K, id: string) {
-      if (!handlers.has(id)) {
-        throw new Error(`Handler not found for event: ${String(event)}`)
-      }
+    //   ipcRenderer.on(event, handlerToSave)
+    // },
+    // off<K extends keyof ServiceEventMap>(event: K, id: string) {
+    //   if (!handlers.has(id)) {
+    //     throw new Error(`Handler not found for event: ${String(event)}`)
+    //   }
 
-      const savedHandler = handlers.get(id)
+    //   const savedHandler = handlers.get(id)
 
-      ipcRenderer.removeListener(event, savedHandler)
-    },
+    //   ipcRenderer.removeListener(event, savedHandler)
+    // },
   }
 
   return api

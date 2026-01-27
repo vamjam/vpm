@@ -6,27 +6,48 @@
   "engines": {
     "node": ">=24.9"
   },
+  "main": "dist/index.js",
   "scripts": {
-    "dx": "",
+    "start": "yarn electron .",
+    "start:dev": "yarn electron --trace-warnings .",
+    "dx": "yarn build:workers && node ./scripts/dev.ts",
+    "dx:main": "yarn build:main --watch --on-success \"yarn start:dev\"",
+    "dx:renderer": "yarn vite",
+    "build": "yarn clean && yarn build:main && yarn build:preload && yarn build:renderer && yarn build:workers",
+    "build:main": "yarn tsup --config src/main/tsup.config.ts",
+    "build:preload": "yarn tsdown -c src/preload/tsdown.config.ts",
+    "build:renderer": "yarn vite build",
+    "build:workers": "yarn tsdown -c src/workers/tsdown.config.ts",
     "build:config": "yarn json2ts src/main/config/schema.json src/main/config/schema.ts",
+    "build:api": "node ./scripts/generate-api-types.ts \"src/main/**/*.service.ts\"",
+    "generate:db": "yarn drizzle-kit generate",
+    "clean": "yarn rimraf dist",
     "lint": "eslint \"packages/**/*.{ts,tsx,js,jsx}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "@libsql/client": "^0.17.0",
+    "conf": "^15.0.2",
     "drizzle-orm": "^0.45.1",
-    "electron-store": "^11.0.2",
+    "file-entry-cache": "^11.1.2",
     "file-stream-rotator": "^1.0.0",
-    "klaw": "^4.1.0"
+    "klaw": "^4.1.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router": "^7.13.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/klaw": "^3.0.7",
     "@types/node": "^24.9.2",
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
-    "concurrently": "^9.2.1",
+    "@vitejs/plugin-react": "^5.1.2",
+    "drizzle-kit": "^0.31.8",
     "electron": "^40.0.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
@@ -37,9 +58,11 @@
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "tsdown": "^0.20.1",
+    "tsup": "^8.5.1",
     "typed-emitter": "^2.1.0",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vite-tsconfig-paths": "^6.0.5"
   },
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx}": [

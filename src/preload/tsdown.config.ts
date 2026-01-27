@@ -1,9 +1,10 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['src/preload/preload.ts'],
+  entry: './preload.ts',
+  outDir: '../../dist',
   format: ['cjs'],
-  tsconfig: 'src/preload/tsconfig.json',
+  tsconfig: './tsconfig.json',
   external: ['electron'],
-  noExternal: ['@filejam/electron-procstream'],
+  clean: false,
 })

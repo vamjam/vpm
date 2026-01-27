@@ -1,6 +1,8 @@
-import { contextBridge, ipcRenderer } from 'electron/renderer'
-import { createAPI } from '@shared/api.ts'
+// import { createAPI } from '@shared/api.ts'
+import { contextBridge, ipcRenderer } from 'electron'
 
-const api = createAPI(ipcRenderer)
+// const api = createAPI(ipcRenderer)
 
-contextBridge.exposeInMainWorld('api', api)
+contextBridge.exposeInMainWorld('api', {
+  test: () => ipcRenderer.invoke('test'),
+})

@@ -1,19 +1,32 @@
-import { t } from '@main/db/drizzle.ts'
+import { t } from '../main/db/drizzle.ts'
 import * as utils from './utils.ts'
 
-export const scenes = t.sqliteTable(
-  'scenes',
-  {
-    ...utils.keys,
-    name: t.text('name').notNull(),
-    tags: t.text('tags', { mode: 'json' }).$type<string[]>(),
-    keywords: t.text('keywords', { mode: 'json' }).$type<string[]>(),
-  },
-  (table) => [t.uniqueIndex('ux_name').on(table.name)],
-)
+export enum AssetType {
+  AddonPackage = 'addon_package',
+  AnimationPreset = 'animation_preset',
+  AppearancePreset = 'appearance_preset',
+  AssetBundle = 'asset_bundle',
+  BreastPreset = 'breast_preset',
+  Clothing = 'clothing',
+  ClothingPreset = 'clothing_preset',
+  GeneralPreset = 'general_preset',
+  GlutePreset = 'glute_preset',
+  Hair = 'hair',
+  HairPreset = 'hair_preset',
+  Morph = 'morph',
+  MorphPreset = 'morph_preset',
+  PluginPreset = 'plugin_preset',
+  PosePreset = 'pose_preset',
+  Scene = 'scene',
+  Script = 'script',
+  ScriptPreset = 'script_preset',
+  SkinPreset = 'skin_preset',
+  Subscene = 'subscene',
+  Texture = 'texture',
+}
 
-export const addonPackages = t.sqliteTable(
-  'addon_packages',
+export const assets = t.sqliteTable(
+  'assets',
   {
     ...utils.keys,
     importedAt: t
@@ -24,8 +37,9 @@ export const addonPackages = t.sqliteTable(
     fileUpdatedAt: t.integer('file_updated_at', { mode: 'timestamp' }),
     fileName: t.text('file_name').notNull(),
     fileSize: t.integer('file_size').notNull(),
-    type: t.text('type').notNull(),
+    type: t.text('type').$type<AssetType>().notNull(),
     url: t.text('url').notNull(),
+    creatorId: t.integer('creator_id').references(() => creators.id),
     tags: t.text('tags', { mode: 'json' }).$type<string[]>(),
     keywords: t.text('keywords', { mode: 'json' }).$type<string[]>(),
     isHidden: t
@@ -37,47 +51,13 @@ export const addonPackages = t.sqliteTable(
       .notNull()
       .default(false),
   },
-  (table) => [t.uniqueIndex('ux_url').on(table.url)],
+  (table) => [
+    t.uniqueIndex('ux_url').on(table.url),
+    t.index('ix_type').on(table.type),
+  ],
 )
 
-export enum PresetType {
-  Animation = 'animation',
-  Appearance = 'appearance',
-  Breast = 'breast',
-  Clothing = 'clothing',
-  General = 'general',
-  Glute = 'glute',
-  Hair = 'hair',
-  Morph = 'morph',
-  Plugin = 'plugin',
-  Pose = 'pose',
-  Script = 'script',
-  Skin = 'skin',
-}
-
-export enum AssetType {
-  AddonPackage = 'addon_package',
-  AssetBundle = 'asset_bundle',
-  Clothing = 'clothing',
-  Hair = 'hair',
-  Morph = 'morph',
-  Scene = 'scene',
-  Script = 'script',
-  Subscene = 'subscene',
-  Texture = 'texture',
-}
-
-export const presets = t.sqliteTable(
-  'presets',
-  {
-    ...utils.keys,
-    name: t.text('name').notNull(),
-    type: t.text('type').$type<PresetType>().notNull(),
-    url: t.text('url').notNull(),
-    tags: t.text('tags', { mode: 'json' }).$type<string[]>(),
-  },
-  (table) => [t.uniqueIndex('ux_name').on(table.name)],
-)
+export type Asset = typeof assets.$inferSelect
 
 export const creators = t.sqliteTable(
   'creators',

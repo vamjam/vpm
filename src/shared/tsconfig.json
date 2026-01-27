@@ -1,9 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "paths": {
-      "@main/*": ["../main/*"]
-    }
+    "composite": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true
   },
+  "references": [
+    {
+      "path": "../main"
+    }
+  ],
   "include": ["**/*.ts"]
 }

@@ -6,6 +6,10 @@
  */
 
 /**
+ * The file system path to the VaM installation folder.
+ */
+export type VaMFolderPath = string;
+/**
  * The environment in which the application is running.
  */
 export type ApplicationEnvironment = "production" | "development" | "test";
@@ -44,6 +48,7 @@ export type Position = "center" | "start" | "end";
 export type WindowYPosition = Position | number;
 
 export interface ConfigSchema {
+  "vam.path"?: VaMFolderPath;
   "app.env": ApplicationEnvironment;
   "app.language": ApplicationLanguage;
   "app.version": ApplicationVersion;

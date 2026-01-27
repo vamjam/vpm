@@ -1,26 +1,15 @@
 import { AssetService } from '~/asset/asset.service.ts'
-import { ImportService } from '~/asset/import.service.ts'
-import { ConfigService, ConfigStore } from '~/config/index.ts'
-import { LibraryService } from '~/library/library.service.ts'
-import { UserService } from '~/user/user.service.ts'
-import { CustomEmitter } from './external.ts'
-import { type MainLogger, createLogger } from './logger.ts'
+import { ConfigStore, schema } from '~/config/index.ts'
+import { type MainLogger, createLogger } from '~/logger/index.ts'
+import { app } from './electron.ts'
 import { MainWindow } from './main-window.ts'
-import { EventEmitter } from './node.ts'
 
 const services = {
-  user: UserService,
-  asset: AssetService,
-  import: ImportService,
-  library: LibraryService,
+  finder: AssetService,
 } as const
 
 type ServiceKey = keyof typeof services
 type Service = InstanceType<(typeof services)[ServiceKey]>
-
-type ApplicationEvents = {
-  'app.initialized': () => Promise<void> | void
-}
 
 /**
  * Main application runtime class.
@@ -31,7 +20,7 @@ type ApplicationEvents = {
  * - Interface with application services.
  * - Graceful shutdown/exit.
  */
-export default class Application extends (EventEmitter as CustomEmitter<ApplicationEvents>) {
+export default class Application {
   config: ConfigStore
   log: MainLogger
   window: MainWindow
@@ -43,9 +32,25 @@ export default class Application extends (EventEmitter as CustomEmitter<Applicat
    * Initializes configuration and logging, and creates the main window.
    */
   constructor() {
-    super()
+    const { properties, ...rootSchema } = schema
+    const { type, required, additionalProperties, definitions } = rootSchema
 
-    this.config = new ConfigService().getConfig()
+    this.config = new ConfigStore({
+      projectName: 'vpm',
+      projectSuffix: '',
+      rootSchema: {
+        type,
+        required,
+        additionalProperties,
+        definitions,
+      },
+      schema: properties,
+      // @ts-expect-error: Other defaults live in the schema
+      // as they are not dynamic
+      defaults: {
+        'data.path': app.getPath('userData'),
+      },
+    })
 
     this.log = createLogger('main', {
       level: this.config.get('log.level'),
@@ -53,12 +58,14 @@ export default class Application extends (EventEmitter as CustomEmitter<Applicat
 
     const isDev = this.config.get('app.env') === 'development'
 
+    this.log.info(`Versions: ${JSON.stringify(process.versions, null, 2)}`)
+
     this.log.info(
       `Starting app in ${isDev ? 'development' : 'production'} mode with config ${JSON.stringify(
         this.config.store,
         null,
         2,
-      )}`,
+      )} (${this.config.path})`,
     )
 
     this.log.info(`Using log directory: "${this.log.getLogsDirectory()}"`)
@@ -70,10 +77,7 @@ export default class Application extends (EventEmitter as CustomEmitter<Applicat
     this.log.debug('Initializing application and services...')
 
     for (const [name, ServiceClass] of Object.entries(services)) {
-      this.#services.set(
-        name as ServiceKey,
-        new ServiceClass(this.config, this.log, this),
-      )
+      this.#services.set(name as ServiceKey, new ServiceClass(this))
     }
 
     for await (const service of this.#services.values()) {
@@ -83,8 +87,6 @@ export default class Application extends (EventEmitter as CustomEmitter<Applicat
     await this.window.show()
 
     this.log.debug('Application and services initialized successfully')
-
-    this.emit('app.initialized')
 
     return this
   }
@@ -110,8 +112,6 @@ export default class Application extends (EventEmitter as CustomEmitter<Applicat
     } catch {
       // If the window is already closed, ignore the error
     }
-
-    this.removeAllListeners('app.initialized')
 
     for await (const service of this.#services.values()) {
       if (isAsyncDisposable(service)) {

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema",
   "title": "Config Schema",
   "type": "object",
   "required": [
@@ -21,6 +21,11 @@
     }
   },
   "properties": {
+    "vam.path": {
+      "title": "VaM Folder Path",
+      "type": "string",
+      "description": "The file system path to the VaM installation folder."
+    },
     "app.env": {
       "title": "Application Environment",
       "oneOf": [

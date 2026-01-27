@@ -13,5 +13,6 @@
 
 body {
   color: var(--ink);
-  background: linear-gradient(0deg, transparent 80%, oklch(0.19 0.02 354) 100%);
+  /* background: var(--surface); */
+  /* background: linear-gradient(0deg, transparent 80%, oklch(0.19 0.02 354) 100%); */
 }

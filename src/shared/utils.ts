@@ -1,5 +1,5 @@
 import * as t from 'drizzle-orm/sqlite-core'
-import { crypto } from '~/core/node.ts'
+import { crypto } from '../main/core/node.ts'
 
 export const timestamps = {
   createdAt: t

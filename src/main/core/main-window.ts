@@ -1,4 +1,4 @@
-import { ServiceEventMap, WindowControlAction } from '@shared/api.ts'
+import { WindowControlAction } from '@shared/api.ts'
 import { ConfigStore } from '~/config/index.ts'
 import { MainLogger } from '~/logger/index.ts'
 import { BrowserWindow, screen } from './electron.ts'
@@ -6,23 +6,34 @@ import { fileURLToPath, path } from './node.ts'
 
 const dir = fileURLToPath(new URL('../', import.meta.url))
 
-type TypedWebContents = Omit<Electron.WebContents, 'send'> & {
-  send<
-    K extends keyof ServiceEventMap,
-    P extends Parameters<ServiceEventMap[K]>,
-  >(
-    channel: K,
-    ...params: P
-  ): void
+// type TypedWebContents = Omit<Electron.WebContents, 'send'> & {
+//   send<
+//     K extends keyof ServiceEventMap,
+//     P extends Parameters<ServiceEventMap[K]>,
+//   >(
+//     channel: K,
+//     ...params: P
+//   ): void
+// }
+
+// type TypedBrowserWindow = Electron.BrowserWindow & {
+//   webContents: TypedWebContents
+// }
+
+type MainWindowEvents = {
+  'window.shown': () => void
 }
 
-type TypedBrowserWindow = Electron.BrowserWindow & {
-  webContents: TypedWebContents
-}
-
-export class MainWindow extends (BrowserWindow as new (
+// type TypedBrowserWindow = new (
+//   options?: Electron.BrowserWindowConstructorOptions,
+// ) => Electron.BrowserWindow & {
+//   webContents: TypedWebContents
+// }
+type TypedBrowserWindow = new (
   options?: Electron.BrowserWindowConstructorOptions,
-) => TypedBrowserWindow) {
+) => Electron.BrowserWindow
+
+export class MainWindow extends (BrowserWindow as TypedBrowserWindow) {
   #log: MainLogger
   #config: ConfigStore
 
@@ -42,9 +53,7 @@ export class MainWindow extends (BrowserWindow as new (
       show: false,
       transparent: true,
       titleBarStyle: 'hidden',
-      backgroundMaterial: 'mica',
-      vibrancy: 'window',
-      visualEffectState: 'followWindow',
+      backgroundMaterial: 'acrylic',
 
       webPreferences: {
         preload: path.join(dir, 'dist', 'preload.cjs'),
@@ -55,8 +64,6 @@ export class MainWindow extends (BrowserWindow as new (
     this.#config = config
     this.#log = log
 
-    this.setWindowButtonPosition({ x: 22, y: 22 })
-
     this.on('focus', () => this.webContents.send('window.focus', true))
     this.on('blur', () => this.webContents.send('window.focus', false))
   }
@@ -66,7 +73,9 @@ export class MainWindow extends (BrowserWindow as new (
       this.#log.info(`Loading dev window`)
       await this.loadURL('http://localhost:5173')
 
-      this.webContents.openDevTools()
+      this.webContents.openDevTools({
+        mode: 'detach',
+      })
     } else {
       await this.loadFile(path.join(dir, 'renderer/index.html'))
     }
@@ -88,6 +97,12 @@ export class MainWindow extends (BrowserWindow as new (
         this.maximize()
       }
     }
+  }
+
+  [Symbol.dispose](): void {
+    this.#log.info('Disposing main window...')
+    this.removeAllListeners('focus').removeAllListeners('blur')
+    this.destroy()
   }
 }
 

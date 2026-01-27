@@ -1,4 +1,4 @@
-import Store from 'electron-store'
+import Conf from 'conf'
 import schema from './schema.json' with { type: 'json' }
 import { ConfigSchema } from './schema.ts'
 
@@ -8,7 +8,7 @@ export type Config = ConfigSchema
 // The electron-store module requires escaping keys that
 // contain dots, so this class simply wraps the store to do
 // that for us. Now we can do `config.get('some.config.key')`
-export default class ConfigStore extends Store<ConfigSchema> {
+export default class ConfigStore extends Conf<ConfigSchema> {
   override get<K extends ConfigKey>(key: K): Config[K] {
     return super.get(escape(key))
   }

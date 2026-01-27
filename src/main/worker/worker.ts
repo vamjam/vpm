@@ -5,9 +5,10 @@ export function createWorker(
   log: MainLogger,
   filePath: string,
   serviceName: string,
-  args: Record<string, string> = {},
+  args: Record<string, string | undefined> = {},
 ) {
   const parsedArgs = Object.entries(args).map(([key, value]) => {
+    if (value == undefined) return `--${key}=`
     return `--${key}=${value}`
   })
 

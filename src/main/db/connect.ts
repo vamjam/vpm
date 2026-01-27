@@ -7,11 +7,13 @@ import { runMigrations } from './migrations.ts'
 
 interface DatabaseConnection extends Disposable {
   db: LibSQLDatabase | null
+  url: string | null
   client: Client | null
 }
 
 const databaseConnection: DatabaseConnection = {
   db: null,
+  url: null,
   client: null,
   [Symbol.dispose]() {
     this.client?.close()
@@ -42,6 +44,7 @@ export default async function connect(
   })
 
   databaseConnection.db = drizzle(databaseConnection.client)
+  databaseConnection.url = dbURL.href
 
   await runMigrations(databaseConnection.client, log)
 

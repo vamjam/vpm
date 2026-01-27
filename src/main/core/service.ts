@@ -7,7 +7,7 @@ import { MainLogger } from '~/logger/index.ts'
 import type Application from './application.ts'
 import { ipcMain } from './electron.ts'
 import { EventMap, TypedEmitter } from './external.ts'
-import { EventEmitter, path } from './node.ts'
+import { EventEmitter } from './node.ts'
 
 // export interface Service<
 //   T extends EventMap = EventMap,
@@ -28,15 +28,16 @@ export abstract class Service<E extends EventMap = EventMap>
   log: MainLogger
   app: Application
   db: LibSQLDatabase | null = null
+  dbURL: string | null = null
 
   #client: Client | null = null
   #offHandlers: Handler[] = []
 
-  constructor(config: ConfigStore, log: MainLogger, app: Application) {
+  constructor(app: Application) {
     super()
-    this.log = log
-    this.config = config
     this.app = app
+    this.log = this.app.log
+    this.config = this.app.config
   }
 
   override emit(channel: keyof E, ...args: Parameters<E[keyof E]>): boolean {
@@ -49,6 +50,7 @@ export abstract class Service<E extends EventMap = EventMap>
     const conn = await connect(this.config, this.log)
 
     this.db = conn.db
+    this.dbURL = conn.url
     this.#client = conn.client
 
     const name = Object.getPrototypeOf(this).constructor.name
@@ -76,11 +78,7 @@ export abstract class Service<E extends EventMap = EventMap>
  * Decorator to expose a class method over IPC.
  * @param name The IPC channel name
  */
-// "any" is exactly what we want here
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function expose<T extends (...args: any[]) => Promise<any>>(
-  name: string,
-) {
+export function expose<T extends (...args: any[]) => any>(name: string) {
   return function <This>(
     target: (this: This, ...args: Parameters<T>) => ReturnType<T>,
     context: ClassMethodDecoratorContext<This, T>,

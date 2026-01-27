@@ -1,19 +1,18 @@
 import Application from '~/core/application.ts'
 import { app } from '~/core/electron.ts'
-import { ExifTool } from '~/core/external.ts'
 import { os, process } from '~/core/node.ts'
-import { registerThumbnailProtocol } from '~/protocol/thumbnail.protocol.ts'
 
-const registerThumbnailProtocolHandler = registerThumbnailProtocol()
+// import { registerThumbnailProtocol } from '~/protocol/thumbnail.protocol.ts'
+
+// const registerThumbnailProtocolHandler = registerThumbnailProtocol()
 
 app.on('ready', async () => {
   const application = new Application()
   const { log } = application
-  const exiftool = new ExifTool()
 
-  registerThumbnailProtocolHandler(exiftool, () =>
-    application.getService('asset'),
-  )
+  // registerThumbnailProtocolHandler(exiftool, () =>
+  //   application.getService('asset'),
+  // )
 
   try {
     try {
@@ -55,6 +54,6 @@ app.on('ready', async () => {
       }
     })
   } finally {
-    await exiftool.end(true)
+    // await exiftool.end(true)
   }
 })
