@@ -10,8 +10,25 @@ import styles from './Assets.module.css'
 import Grid from './views/Grid.tsx'
 
 export default function Assets() {
-  const { type } = useParams<{ type: AssetType }>()
-  const list = useIPC('assets.list', type!)
+  const { type } = useParams<{ type: AssetType | 'presets' }>()
+  const assetTypes =
+    type === 'presets'
+      ? [
+          AssetType.PosePreset,
+          AssetType.HairPreset,
+          AssetType.GeneralPreset,
+          AssetType.ClothingPreset,
+          AssetType.MorphPreset,
+          AssetType.AnimationPreset,
+          AssetType.ScriptPreset,
+          AssetType.PluginPreset,
+          AssetType.SkinPreset,
+          AssetType.BreastPreset,
+          AssetType.GlutePreset,
+          AssetType.AppearancePreset,
+        ]
+      : [type!]
+  const list = useIPC('assets.list', ...assetTypes)
   const ref = useRef<HTMLDivElement>(null!)
   const { width } = useResizeObserver({ ref })
   const view = useStore((state) => state['toolbar.view'])

@@ -1,13 +1,13 @@
-import {
-  Apps24Regular as AddonsIcon,
-  AppFolder24Regular as HubIcon,
-  Options24Regular as PresetsIcon,
-  MoviesAndTv24Regular as ScenesIcon,
-  Settings24Regular as SettingsIcon,
-} from '@fluentui/react-icons'
 import { AssetType } from '@shared/types.ts'
 import { AnchorHTMLAttributes, ReactNode } from 'react'
 import { Link as RouterLink, useLocation } from 'react-router'
+import {
+  AddonsIcon,
+  HubIcon,
+  PresetsIcon,
+  ScenesIcon,
+  SettingsIcon,
+} from '~/ui/icons.ts'
 import styles from './Sidebar.module.css'
 
 export default function Sidebar() {

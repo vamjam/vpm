@@ -3,7 +3,7 @@ import { type Asset, AssetType } from '@shared/types.ts'
 import { app } from '~/core/electron.ts'
 import { fileURLToPath, path } from '~/core/node.ts'
 import { Service, expose } from '~/core/service.ts'
-import { eq } from '~/db/drizzle.ts'
+import { eq, inArray } from '~/db/drizzle.ts'
 import { createWorker } from '~/worker/worker.ts'
 
 export class AssetService extends Service {
@@ -28,7 +28,7 @@ export class AssetService extends Service {
   }
 
   @expose('assets.list')
-  async listAssets(type: AssetType): Promise<Asset[] | undefined> {
+  async listAssets(...types: AssetType[]): Promise<Asset[] | undefined> {
     const records = await this.db
       ?.select()
       .from(entity.assets)
@@ -36,7 +36,7 @@ export class AssetService extends Service {
         entity.creators,
         eq(entity.assets.creatorId, entity.creators.id),
       )
-      .where(eq(entity.assets.type, type))
+      .where(inArray(entity.assets.type, types))
 
     return records?.map((r) => ({
       ...r.assets,
