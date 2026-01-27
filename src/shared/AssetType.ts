@@ -1,0 +1,25 @@
+enum AssetType {
+  AddonPackage = 'addon_package',
+  AnimationPreset = 'animation_preset',
+  AppearancePreset = 'appearance_preset',
+  AssetBundle = 'asset_bundle',
+  BreastPreset = 'breast_preset',
+  Clothing = 'clothing',
+  ClothingPreset = 'clothing_preset',
+  GeneralPreset = 'general_preset',
+  GlutePreset = 'glute_preset',
+  Hair = 'hair',
+  HairPreset = 'hair_preset',
+  Morph = 'morph',
+  MorphPreset = 'morph_preset',
+  PluginPreset = 'plugin_preset',
+  PosePreset = 'pose_preset',
+  Scene = 'scene',
+  Script = 'script',
+  ScriptPreset = 'script_preset',
+  SkinPreset = 'skin_preset',
+  Subscene = 'subscene',
+  Texture = 'texture',
+}
+
+export default AssetType

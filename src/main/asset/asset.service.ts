@@ -1,5 +1,6 @@
+import AssetType from '@shared/AssetType.ts'
 import * as entity from '@shared/entities.ts'
-import { type Asset, AssetType } from '@shared/types.ts'
+import { type Asset } from '@shared/types.ts'
 import { app } from '~/core/electron.ts'
 import { fileURLToPath, path } from '~/core/node.ts'
 import { Service, expose } from '~/core/service.ts'

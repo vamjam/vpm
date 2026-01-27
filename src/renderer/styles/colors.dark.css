@@ -1,9 +1,12 @@
 :root {
   --surface: oklch(100% 0 0 / 0.05);
+  --out: calc(95% - 0.9 * var(--in));
+
   --surface-2: oklch(from var(--surface) l c h / 0.04);
-  --surface-3: oklch(from var(--surface) l c h / 0.1);
-  --surface-4: oklch(from var(--surface) l c h / 0.18);
-  --surface-x: oklch(5% 0.1 0 / 0.15);
+  --surface-3: oklch(from var(--surface) l c h / 0.07);
+  --surface-4: oklch(from var(--surface) l c h / 0.1);
+  --surface-5: oklch(from var(--surface) l c h / 0.18);
+  --surface-x: oklch(from var(--surface) 5% 0.04 h / 0.6);
 
   --accent: oklch(70% 0.3 18);
   --ink: oklch(85% 0 0);

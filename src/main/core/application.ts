@@ -1,11 +1,11 @@
 import { AssetService } from '~/asset/asset.service.ts'
 import { ConfigStore, schema } from '~/config/index.ts'
 import { type MainLogger, createLogger } from '~/logger/index.ts'
-import { app } from './electron.ts'
-import { MainWindow } from './main-window.ts'
+import { BrowserWindow, app } from './electron.ts'
+import { path } from './node.ts'
 
 const services = {
-  finder: AssetService,
+  asset: AssetService,
 } as const
 
 type ServiceKey = keyof typeof services
@@ -23,7 +23,7 @@ type Service = InstanceType<(typeof services)[ServiceKey]>
 export default class Application {
   config: ConfigStore
   log: MainLogger
-  window: MainWindow
+  window: InstanceType<typeof BrowserWindow>
 
   #services = new Map<ServiceKey, Service>()
 
@@ -32,45 +32,9 @@ export default class Application {
    * Initializes configuration and logging, and creates the main window.
    */
   constructor() {
-    const { properties, ...rootSchema } = schema
-    const { type, required, additionalProperties, definitions } = rootSchema
-
-    this.config = new ConfigStore({
-      projectName: 'vpm',
-      projectSuffix: '',
-      rootSchema: {
-        type,
-        required,
-        additionalProperties,
-        definitions,
-      },
-      schema: properties,
-      // @ts-expect-error: Other defaults live in the schema
-      // as they are not dynamic
-      defaults: {
-        'data.path': app.getPath('userData'),
-      },
-    })
-
-    this.log = createLogger('main', {
-      level: this.config.get('log.level'),
-    })
-
-    const isDev = this.config.get('app.env') === 'development'
-
-    this.log.info(`Versions: ${JSON.stringify(process.versions, null, 2)}`)
-
-    this.log.info(
-      `Starting app in ${isDev ? 'development' : 'production'} mode with config ${JSON.stringify(
-        this.config.store,
-        null,
-        2,
-      )} (${this.config.path})`,
-    )
-
-    this.log.info(`Using log directory: "${this.log.getLogsDirectory()}"`)
-
-    this.window = new MainWindow(this.config, this.log)
+    this.config = this.#startConfig()
+    this.log = this.#startLogger(this.config)
+    this.window = this.#createWindow()
   }
 
   async initialize(): Promise<this> {
@@ -84,7 +48,7 @@ export default class Application {
       await service.initialize()
     }
 
-    await this.window.show()
+    await this.#openWindow()
 
     this.log.debug('Application and services initialized successfully')
 
@@ -122,6 +86,88 @@ export default class Application {
     }
 
     this.log.info('Application shutdown complete')
+  }
+
+  #createWindow() {
+    const window = new BrowserWindow({
+      width: this.config.get('window.width'),
+      height: this.config.get('window.height'),
+      frame: false,
+      show: false,
+      titleBarStyle: 'hidden',
+      backgroundMaterial: 'acrylic',
+      webPreferences: {
+        preload: path.join(app.getAppPath(), 'dist', 'preload.cjs'),
+      },
+    })
+
+    return window
+  }
+
+  async #openWindow() {
+    if (this.config.get('app.env') === 'development') {
+      await this.window.loadURL('http://localhost:5173')
+
+      this.window.webContents.openDevTools({
+        mode: 'detach',
+      })
+    } else {
+      await this.window.loadFile(
+        path.join(app.getAppPath(), 'renderer/index.html'),
+      )
+    }
+
+    this.window.show()
+  }
+
+  #startConfig() {
+    const {
+      properties,
+      type,
+      required,
+      additionalProperties,
+      definitions,
+      ...rest
+    } = schema
+
+    return new ConfigStore({
+      projectName: 'vpm',
+      projectSuffix: '',
+      rootSchema: {
+        type,
+        required,
+        additionalProperties,
+        definitions,
+      },
+      schema: properties,
+      // @ts-expect-error: Other defaults live in the schema
+      // as they are not dynamic
+      defaults: {
+        'data.path': app.getPath('userData'),
+      },
+    })
+  }
+
+  #startLogger(config: ConfigStore): MainLogger {
+    const log = createLogger('main', {
+      level: config.get('log.level'),
+    })
+
+    const isDev = config.get('app.env') === 'development'
+
+    log.info(`Versions: ${JSON.stringify(process.versions, null, 2)}`)
+
+    log.info(
+      `Starting app in ${isDev ? 'development' : 'production'} mode with config ${JSON.stringify(
+        config.store,
+        null,
+        2,
+      )} (${config.path})`,
+    )
+
+    log.info(`Using log directory: "${log.getLogsDirectory()}"`)
+
+    return log
   }
 }
 

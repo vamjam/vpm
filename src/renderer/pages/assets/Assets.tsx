@@ -1,4 +1,4 @@
-import { AssetType } from '@shared/entities.ts'
+import AssetType from '@shared/AssetType.ts'
 import { useRef } from 'react'
 import { useParams } from 'react-router'
 import { useResizeObserver } from 'usehooks-ts'

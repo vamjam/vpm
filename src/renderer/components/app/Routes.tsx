@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes as RouterRoutes } from 'react-router'
+import { Navigate, Route, Routes as RoutesContainer } from 'react-router'
 import useStore from '~/hooks/useStore.ts'
 import AssetsPage from '~/pages/assets/Assets.tsx'
 import Settings from '~/pages/settings/Settings.tsx'
@@ -8,12 +8,14 @@ export default function Routes() {
   const landingPath =
     lastLocation && lastLocation !== '/' ? lastLocation : '/assets'
 
+  console.log(landingPath)
+
   return (
-    <RouterRoutes>
+    <RoutesContainer>
       <Route path="/" element={<Navigate to={landingPath} replace />} />
       <Route path="/assets/:type" element={<AssetsPage />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="*" element={<Navigate to={landingPath} replace />} />
-    </RouterRoutes>
+    </RoutesContainer>
   )
 }

@@ -1,16 +1,79 @@
-:root {
-  --focus-border: transparent;
-  --separator-border: transparent;
-}
-
 .container {
   app-region: drag;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--fs-1);
+  background: var(--surface-x);
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    height: stretch;
+  }
+
+  ul {
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    list-style: none;
+
+    &:last-child {
+      margin-top: auto;
+    }
+  }
+
+  li {
+    margin-block: var(--space-2);
+  }
+
+  a {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    margin-inline: var(--space-2);
+    app-region: no-drag;
+    cursor: default;
+    border-radius: var(--br-3);
+    opacity: 0.7;
+
+    transition-property: background, color, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+
+    &:hover {
+      background: var(--surface-3);
+      opacity: 1;
+      color: var(--ink-full);
+    }
+
+    &:active {
+      background: var(--surface-2);
+    }
+
+    &.active {
+      background: var(--surface-4);
+      opacity: 1;
+      color: var(--ink-full);
+
+      span {
+        /* display: none; */
+      }
+
+      svg {
+        /* color: var(--accent); */
+      }
+    }
+  }
+  /* app-region: drag;
   border-radius: var(--br-3);
   corner-shape: var(--corner-shape);
   margin: var(--space-3);
   margin-right: 0;
   border: 1px solid rgb(255 255 255 / 0.15);
-  /* background: oklch(0% 0 0 / 0.25); */
   background: var(--surface-x);
   height: -webkit-fill-available;
 
@@ -66,7 +129,7 @@
     opacity: 0.5;
     font-weight: 500;
     letter-spacing: 0.03rem;
-  }
+  } */
 }
 
 @keyframes fadeIn {

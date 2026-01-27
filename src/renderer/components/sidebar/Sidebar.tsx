@@ -1,6 +1,7 @@
-import { AssetType } from '@shared/types.ts'
-import { AnchorHTMLAttributes, ReactNode } from 'react'
-import { Link as RouterLink, useLocation } from 'react-router'
+import AssetType from '@shared/AssetType.ts'
+import clsx from 'clsx'
+import { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from 'react'
+import { Link, useLocation } from 'react-router'
 import {
   AddonsIcon,
   HubIcon,
@@ -10,61 +11,60 @@ import {
 } from '~/ui/icons.ts'
 import styles from './Sidebar.module.css'
 
-export default function Sidebar() {
+type SidebarProps = HTMLAttributes<HTMLDivElement>
+
+export default function Sidebar({ className, ...props }: SidebarProps) {
   return (
-    <div className={styles.container}>
+    <div className={clsx(styles.container, className)} {...props}>
       <div className={styles.logo}>vpm</div>
       <nav>
         <ul>
-          <NavItem to={assetLink(AssetType.Scene)}>
-            <ScenesIcon />
-            Scenes
-          </NavItem>
-          <NavItem to={assetLink(AssetType.AddonPackage)}>
+          <NavLink to={assetLink(AssetType.Scene)}>
+            <ScenesIcon /> Scenes
+          </NavLink>
+          <NavLink to={assetLink(AssetType.AddonPackage)}>
             <AddonsIcon />
-            Addons
-          </NavItem>
-          <NavItem to={assetLink('presets')}>
+            <span>Addons</span>
+          </NavLink>
+          <NavLink to={assetLink('presets')}>
             <PresetsIcon />
-            Presets
-          </NavItem>
+            <span>Presets</span>
+          </NavLink>
         </ul>
         <ul>
-          <NavItem to="/hub">
-            <HubIcon />
-            Hub
-          </NavItem>
+          <NavLink to="/hub">
+            <HubIcon /> <span>Hub</span>
+          </NavLink>
         </ul>
         <ul>
-          <NavItem to="/settings/libraries">
-            <SettingsIcon />
-            Settings
-          </NavItem>
+          <NavLink to="/settings">
+            <SettingsIcon /> <span>Settings</span>
+          </NavLink>
         </ul>
       </nav>
     </div>
   )
 }
 
-type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+type NavItemProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   children: ReactNode
   to: string
 }
 
-function NavItem({ to, children, ...anchorProps }: LinkProps) {
+function NavLink({ to, children, ...anchorProps }: NavItemProps) {
   const location = useLocation()
   const isActive = location.pathname === to
   const className = isActive ? styles.active : ''
 
   return (
     <li>
-      <RouterLink to={to} {...anchorProps} className={className}>
+      <Link to={to} {...anchorProps} className={className}>
         {children}
-      </RouterLink>
+      </Link>
     </li>
   )
 }
 
-function assetLink(assetType: AssetType | 'presets') {
+function assetLink(assetType: AssetType | string) {
   return `/assets/${assetType}`
 }

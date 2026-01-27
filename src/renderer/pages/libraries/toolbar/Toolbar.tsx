@@ -1,14 +1,8 @@
 import clsx from 'clsx'
 import { useCallback } from 'react'
-import ChevronLeftIcon from 'symbols/ChevronBackwardIcon'
-import ChevronRightIcon from 'symbols/ChevronForwardIcon'
-import ListIcon from 'symbols/ListBulletIcon'
-import ColumnIcon from 'symbols/RectangleSplit3x1Icon'
-import GridIcon from 'symbols/SquareGrid2x2Icon'
-import GalleryIcon from 'symbols/SquaresBelowRectangleIcon'
 import buttonGroupStyles from '~/components/input/button-group/ButtonGroup.module.css'
-import ButtonGroup from '~/components/input/button-group/ButtonGroup.tsx'
-import Button from '~/components/input/button/Button.tsx'
+// import ButtonGroup from '~/components/input/button-group/ButtonGroup.tsx'
+// import Button from '~/components/input/button/Button.tsx'
 import Stack from '~/components/layout/stack/Stack.tsx'
 import { ToolbarView } from '~/hooks/slices/toolbar.ts'
 import useStore from '~/hooks/useStore.ts'
@@ -29,7 +23,8 @@ export default function Toolbar({ children }: { children?: React.ReactNode }) {
 
   return (
     <Stack direction="row" justify="space-between" className={styles.container}>
-      <ButtonGroup>
+      children woot
+      {/* <ButtonGroup>
         <Button>
           <ChevronLeftIcon />
         </Button>
@@ -51,7 +46,7 @@ export default function Toolbar({ children }: { children?: React.ReactNode }) {
         <Button {...viewButtonProps('gallery')}>
           <GalleryIcon />
         </Button>
-      </ButtonGroup>
+      </ButtonGroup> */}
     </Stack>
   )
 }
