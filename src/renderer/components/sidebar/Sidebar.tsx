@@ -24,7 +24,7 @@ export default function Sidebar() {
             <AddonsIcon />
             Addons
           </NavItem>
-          <NavItem to="/assets/presets">
+          <NavItem to={assetLink('presets')}>
             <PresetsIcon />
             Presets
           </NavItem>
@@ -65,6 +65,6 @@ function NavItem({ to, children, ...anchorProps }: LinkProps) {
   )
 }
 
-function assetLink(assetType: AssetType) {
+function assetLink(assetType: AssetType | 'presets') {
   return `/assets/${assetType}`
 }
