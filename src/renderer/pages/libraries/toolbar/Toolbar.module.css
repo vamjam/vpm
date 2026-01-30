@@ -1,12 +1,12 @@
 .container {
-  app-region: drag;
   position: sticky;
   top: 0;
-  margin: calc(var(--space-4) * -1);
+  /* margin: calc(var(--space-4) * -1); */
   padding: var(--space-3) var(--space-5) var(--space-2) var(--space-5);
   z-index: 1;
+  flex: 1;
 
-  &::before {
+  /* &::before {
     content: '';
     position: absolute;
     top: 0;
@@ -17,10 +17,11 @@
     pointer-events: none;
     backdrop-filter: blur(12px) saturate(150%);
     z-index: -1;
-  }
+  } */
 }
 
 .title {
   flex: 2;
   align-self: center;
+  font-size: var(--fs-4);
 }

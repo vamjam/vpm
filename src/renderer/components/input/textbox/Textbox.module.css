@@ -1,0 +1,45 @@
+.container {
+  display: flex;
+
+  &:hover {
+    .textbox {
+      background: var(--surface-3);
+    }
+
+    .icon {
+      color: var(--ink);
+    }
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  transform: translateX(calc(var(--space-6) + 4px));
+  color: var(--ink-muted);
+}
+
+.textbox {
+  font-family: inherit;
+  font-size: var(--fs-3);
+  font-weight: 300;
+  background: var(--surface-x3);
+  border-radius: var(--br-6);
+  border: none;
+  padding-inline: var(--space-5);
+  line-height: 1.4;
+  app-region: no-drag;
+
+  &:focus-within {
+    background: var(--surface);
+    outline: none;
+  }
+
+  &.withStartIcon {
+    padding-inline-start: calc(var(--space-7) + 4px);
+  }
+
+  &.withEndIcon {
+    padding-inline-end: var(--icon-padding);
+  }
+}

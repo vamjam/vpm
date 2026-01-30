@@ -1,42 +1,18 @@
 .container {
-  background: var(--surface);
+  background: var(--surface-x3);
   border-radius: var(--br-6);
-  backdrop-filter: blur(20px);
-
-  &.inverse {
-    background: var(--surface-x);
-  }
 
   display: flex;
   align-items: center;
+  gap: 3px;
   padding: 3px;
 
   button {
     background: transparent;
     display: flex;
     align-items: center;
-    padding-inline: 8px;
-
-    &.active:after {
-      opacity: 0;
-    }
-
-    &:after {
-      content: '';
-      display: block;
-      width: 1px;
-      height: 20px;
-      position: relative;
-      left: 8px;
-      background: var(--ink);
-      opacity: 0.15;
-    }
-
-    &:last-child {
-      &:after {
-        display: none;
-      }
-    }
+    padding-inline: 12px;
+    padding-block: 7px;
 
     svg {
       color: currentColor;

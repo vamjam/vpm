@@ -1,5 +1,4 @@
-// import { createWorker } from '~/worker/worker.ts'
-import { ConfigStore } from '~/config/index.ts'
+import { ConfigService } from '~/config/index.ts'
 import connect from '~/db/connect.ts'
 import { LibSQLDatabase } from '~/db/drizzle.ts'
 import { Client } from '~/db/libsql.ts'
@@ -9,22 +8,13 @@ import { ipcMain } from './electron.ts'
 import { EventMap, TypedEmitter } from './external.ts'
 import { EventEmitter } from './node.ts'
 
-// export interface Service<
-//   T extends EventMap = EventMap,
-// > extends TypedEmitter<T> {
-//   config: ConfigStore
-//   log: MainLogger
-//   db: null | LibSQLDatabase
-//   initialize(): Promise<void> | void
-// }
-
 type Handler = (...args: unknown[]) => Promise<unknown> | unknown
 
 export abstract class Service<E extends EventMap = EventMap>
   extends (EventEmitter as { new <EM extends EventMap>(): TypedEmitter<EM> })<E>
   implements Disposable
 {
-  config: ConfigStore
+  config: ConfigService
   log: MainLogger
   app: Application
   db: LibSQLDatabase | null = null
@@ -78,9 +68,9 @@ export abstract class Service<E extends EventMap = EventMap>
  * Decorator to expose a class method over IPC.
  * @param name The IPC channel name
  */
-export function expose<T extends (...args: any[]) => any>(name: string) {
-  return function <This>(
-    target: (this: This, ...args: Parameters<T>) => ReturnType<T>,
+export function expose(name: string) {
+  return function <This, T extends (this: This, ...args: any[]) => any>(
+    target: T,
     context: ClassMethodDecoratorContext<This, T>,
   ) {
     context.addInitializer(function () {

@@ -1,9 +1,12 @@
 import { AssetService } from '~/asset/asset.service.ts'
-import { ConfigStore, schema } from '~/config/index.ts'
+import { ConfigService } from '~/config/index.ts'
 import { type MainLogger, createLogger } from '~/logger/index.ts'
-import { BrowserWindow, app } from './electron.ts'
+import { BrowserWindow, app, dialog } from './electron.ts'
 import { path } from './node.ts'
+import { expose } from './service.ts'
 
+// The config service isn't included here because we
+// manually initialize it before other services.
 const services = {
   asset: AssetService,
 } as const
@@ -21,7 +24,7 @@ type Service = InstanceType<(typeof services)[ServiceKey]>
  * - Graceful shutdown/exit.
  */
 export default class Application {
-  config: ConfigStore
+  config: ConfigService
   log: MainLogger
   window: InstanceType<typeof BrowserWindow>
 
@@ -32,8 +35,8 @@ export default class Application {
    * Initializes configuration and logging, and creates the main window.
    */
   constructor() {
-    this.config = this.#startConfig()
-    this.log = this.#startLogger(this.config)
+    this.config = new ConfigService()
+    this.log = this.#startLogger()
     this.window = this.#createWindow()
   }
 
@@ -68,6 +71,23 @@ export default class Application {
     return service as R
   }
 
+  @expose('directory.select')
+  async selectDirectory(defaultPath?: string): Promise<string | null> {
+    const result = await dialog.showOpenDialog(
+      BrowserWindow.getFocusedWindow()!,
+      {
+        properties: ['openDirectory'],
+        defaultPath,
+      },
+    )
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+
+    return result.filePaths[0]
+  }
+
   async shutdown(): Promise<void> {
     this.log.debug('Shutting down application...')
 
@@ -95,7 +115,7 @@ export default class Application {
       frame: false,
       show: false,
       titleBarStyle: 'hidden',
-      backgroundMaterial: 'acrylic',
+      backgroundMaterial: 'mica',
       webPreferences: {
         preload: path.join(app.getAppPath(), 'dist', 'preload.cjs'),
       },
@@ -120,49 +140,21 @@ export default class Application {
     this.window.show()
   }
 
-  #startConfig() {
-    const {
-      properties,
-      type,
-      required,
-      additionalProperties,
-      definitions,
-      ...rest
-    } = schema
-
-    return new ConfigStore({
-      projectName: 'vpm',
-      projectSuffix: '',
-      rootSchema: {
-        type,
-        required,
-        additionalProperties,
-        definitions,
-      },
-      schema: properties,
-      // @ts-expect-error: Other defaults live in the schema
-      // as they are not dynamic
-      defaults: {
-        'data.path': app.getPath('userData'),
-      },
-    })
-  }
-
-  #startLogger(config: ConfigStore): MainLogger {
+  #startLogger(): MainLogger {
     const log = createLogger('main', {
-      level: config.get('log.level'),
+      level: this.config.get('log.level'),
     })
 
-    const isDev = config.get('app.env') === 'development'
+    const isDev = this.config.get('app.env') === 'development'
 
     log.info(`Versions: ${JSON.stringify(process.versions, null, 2)}`)
 
     log.info(
       `Starting app in ${isDev ? 'development' : 'production'} mode with config ${JSON.stringify(
-        config.store,
+        this.config.getStore(),
         null,
         2,
-      )} (${config.path})`,
+      )} (${this.config.path})`,
     )
 
     log.info(`Using log directory: "${log.getLogsDirectory()}"`)

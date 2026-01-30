@@ -34,11 +34,26 @@ export default function Assets() {
   const view = useStore((state) => state['toolbar.view'])
 
   return (
-    <Page>
-      <Toolbar>{type}</Toolbar>
-      <div ref={ref} className={styles.container}>
+    <Page
+      titlebar={{
+        title: getTitleForType(type),
+        children: <Toolbar />,
+      }}>
+      {/* <div ref={ref} className={styles.container}>
         {view === 'grid' && <Grid data={list.data} width={width} />}
-      </div>
+      </div> */}
     </Page>
   )
+}
+
+const titleTypeMap = {
+  [AssetType.Scene]: 'Scenes',
+  [AssetType.AddonPackage]: 'Addons',
+  presets: 'Presets',
+} as const
+
+function getTitleForType(type?: string) {
+  if (!type) return
+
+  return titleTypeMap[type as keyof typeof titleTypeMap]
 }

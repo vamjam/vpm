@@ -1,5 +1,7 @@
 import { type IpcRenderer } from 'electron'
+import applicationAPI from './generated/application.api.ts'
 import assetAPI from './generated/asset.api.ts'
+import configAPI from './generated/config.api.ts'
 import {
   type WindowControlAPI,
   createWindowControls,
@@ -7,7 +9,7 @@ import {
 
 export type { WindowControlAction } from './window-control.api.ts'
 
-type ServiceAPI = typeof assetAPI
+type ServiceAPI = typeof assetAPI & typeof configAPI & typeof applicationAPI
 
 const CACHEABLE_METHOD_TTLS: Partial<Record<keyof ServiceAPI, number>> = {
   'assets.list': 5_000,
@@ -24,7 +26,11 @@ type IPCMethods = {
   ) => Promise<Awaited<ReturnType<ServiceAPI[K]>>>
 }
 
-const keys = [...Object.keys(assetAPI)]
+const keys = [
+  ...Object.keys(assetAPI),
+  ...Object.keys(configAPI),
+  ...Object.keys(applicationAPI),
+]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handlers = new Map<string, any>()

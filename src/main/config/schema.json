@@ -70,17 +70,20 @@
       "title": "Window Height",
       "type": "number",
       "default": 800,
-      "description": "The height of the application window in pixels."
+      "description": "The height of the application window in pixels.",
+      "readOnly": true
     },
     "window.width": {
       "title": "Window Width",
       "type": "number",
       "default": 1200,
-      "description": "The width of the application window in pixels."
+      "description": "The width of the application window in pixels.",
+      "readOnly": true
     },
     "window.x": {
       "title": "Window X Position",
       "default": "center",
+      "readOnly": true,
       "oneOf": [
         {
           "$ref": "#/definitions/position"
@@ -94,6 +97,7 @@
     "window.y": {
       "title": "Window Y Position",
       "default": "center",
+      "readOnly": true,
       "oneOf": [
         {
           "$ref": "#/definitions/position"

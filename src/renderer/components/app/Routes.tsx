@@ -8,8 +8,6 @@ export default function Routes() {
   const landingPath =
     lastLocation && lastLocation !== '/' ? lastLocation : '/assets'
 
-  console.log(landingPath)
-
   return (
     <RoutesContainer>
       <Route path="/" element={<Navigate to={landingPath} replace />} />

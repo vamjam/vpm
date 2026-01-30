@@ -172,10 +172,13 @@ function buildSignature(
   method: ts.MethodDeclaration,
   sourceFile: ts.SourceFile,
 ): string {
+  const typeParams = method.typeParameters?.length
+    ? `<${method.typeParameters.map((param) => param.getText(sourceFile)).join(', ')}>`
+    : ''
   const params = method.parameters.map((param) => param.getText(sourceFile))
   const returnType = method.type ? method.type.getText(sourceFile) : 'unknown'
 
-  return `(${params.join(', ')}) => ${returnType}`
+  return `${typeParams}(${params.join(', ')}) => ${returnType}`
 }
 
 function collectTypeRefs(method: ts.MethodDeclaration): Set<string> {
@@ -198,6 +201,10 @@ function collectTypeRefs(method: ts.MethodDeclaration): Set<string> {
   }
 
   method.parameters.forEach((param) => visit(param.type))
+  method.typeParameters?.forEach((param) => {
+    visit(param.constraint)
+    visit(param.default)
+  })
   visit(method.type)
 
   return refs
@@ -269,7 +276,11 @@ function renderTypeFile(
 ): string {
   const lines: string[] = []
   const outputDir = path.dirname(outputPath)
-  const normalizedImports = normalizeImportMap(imports, outputDir)
+  const normalizedImports = normalizeImportMap(
+    imports,
+    outputDir,
+    path.dirname(inputPath),
+  )
 
   lines.push(
     `// Auto-generated from ${path.relative(process.cwd(), inputPath)}`,
@@ -302,11 +313,15 @@ function renderTypeFile(
   return lines.join('\n')
 }
 
-function normalizeImportMap(imports: ImportMap, outputDir: string): ImportMap {
+function normalizeImportMap(
+  imports: ImportMap,
+  outputDir: string,
+  sourceDir: string,
+): ImportMap {
   const normalized: ImportMap = new Map()
 
   imports.forEach((value, spec) => {
-    const resolvedSpec = resolveImportSpecifier(spec, outputDir)
+    const resolvedSpec = resolveImportSpecifier(spec, outputDir, sourceDir)
     const existing = normalized.get(resolvedSpec) ?? {
       names: new Set<string>(),
     }
@@ -322,7 +337,20 @@ function normalizeImportMap(imports: ImportMap, outputDir: string): ImportMap {
   return normalized
 }
 
-function resolveImportSpecifier(specifier: string, outputDir: string): string {
+function resolveImportSpecifier(
+  specifier: string,
+  outputDir: string,
+  sourceDir: string,
+): string {
+  const normalizePath = (value: string) => value.replace(/\\/g, '/')
+
+  if (specifier.startsWith('.')) {
+    const resolvedSpec = path.resolve(sourceDir, specifier)
+    const relativePath = normalizePath(path.relative(outputDir, resolvedSpec))
+
+    return relativePath.startsWith('.') ? relativePath : `./${relativePath}`
+  }
+
   if (specifier.startsWith('@shared/')) {
     const relativePath = path.relative(
       outputDir,
@@ -333,7 +361,9 @@ function resolveImportSpecifier(specifier: string, outputDir: string): string {
       ),
     )
 
-    return relativePath.startsWith('.') ? relativePath : `./${relativePath}`
+    const normalizedPath = normalizePath(relativePath)
+
+    return normalizedPath.startsWith('.') ? normalizedPath : `./${normalizedPath}`
   }
 
   return specifier

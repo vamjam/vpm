@@ -7,6 +7,7 @@ button {
   color: var(--ink-full);
   font: inherit;
   font-weight: 400;
+  outline: none;
 
   &:hover {
     background: var(--surface-3);
@@ -22,12 +23,6 @@ button {
 
   &:disabled {
     pointer-events: none;
-  }
-
-  svg {
-    pointer-events: none;
-    width: 20px;
-    height: 20px;
   }
 }
 

@@ -9,7 +9,8 @@
     "jsx": "preserve",
     "paths": {
       "~/*": ["./*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@main/*": ["../main/*"]
     }
   },
   "references": [

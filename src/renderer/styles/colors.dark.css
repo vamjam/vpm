@@ -6,7 +6,9 @@
   --surface-3: oklch(from var(--surface) l c h / 0.07);
   --surface-4: oklch(from var(--surface) l c h / 0.1);
   --surface-5: oklch(from var(--surface) l c h / 0.18);
-  --surface-x: oklch(from var(--surface) 5% 0.04 h / 0.6);
+  --surface-x: oklch(from var(--surface) 3% 0.06 h / 0.6);
+  --surface-x2: oklch(from var(--surface) 6% 0.08 h / 0.5);
+  --surface-x3: oklch(from var(--surface) 9% 0.03 h / 0.3);
 
   --accent: oklch(70% 0.3 18);
   --ink: oklch(85% 0 0);
@@ -16,6 +18,4 @@
 
 body {
   color: var(--ink);
-  /* background: var(--surface); */
-  /* background: linear-gradient(0deg, transparent 80%, oklch(0.19 0.02 354) 100%); */
 }

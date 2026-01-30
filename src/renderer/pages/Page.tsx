@@ -1,21 +1,32 @@
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, ReactNode } from 'react'
 import Stack from '~/components/layout/stack/Stack.tsx'
-// import Well from '~/components/shared/Well.tsx'
 import styles from './Page.module.css'
 
 type PageProps = PropsWithChildren<{
-  header?: {
+  titlebar?: {
     title?: string
-    icon?: React.ReactNode
-    description?: string
+    children?: ReactNode
   }
 }>
 
-export default function Page({ header, children }: PageProps) {
+export default function Page({ titlebar, children }: PageProps) {
   return (
-    <Stack className={styles.container} gap="0">
-      {header && <div></div>}
-      {children}
+    <Stack className={styles.container}>
+      <Titlebar title={titlebar?.title}>{titlebar?.children}</Titlebar>
+      <div className={styles.content}>{children}</div>
     </Stack>
+  )
+}
+
+function Titlebar({
+  title,
+  children,
+  ...props
+}: PropsWithChildren<{ title?: string }>) {
+  return (
+    <div className={styles.titlebar}>
+      {title && <h1 {...props}>{title}</h1>}
+      {children}
+    </div>
   )
 }
