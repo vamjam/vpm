@@ -1,18 +1,15 @@
 import Application from '~/core/application.ts'
 import { app } from '~/core/electron.ts'
 import { os, process } from '~/core/node.ts'
+import { registerThumbnailProtocol } from '~/protocol/thumbnail.protocol.ts'
 
-// import { registerThumbnailProtocol } from '~/protocol/thumbnail.protocol.ts'
-
-// const registerThumbnailProtocolHandler = registerThumbnailProtocol()
+const registerThumbnailProtocolHandler = registerThumbnailProtocol()
 
 app.on('ready', async () => {
   const application = new Application()
   const { log } = application
 
-  // registerThumbnailProtocolHandler(exiftool, () =>
-  //   application.getService('asset'),
-  // )
+  registerThumbnailProtocolHandler()
 
   try {
     try {

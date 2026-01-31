@@ -7,13 +7,14 @@ button {
   color: var(--ink-full);
   font: inherit;
   font-weight: 400;
-  outline: none;
+  /* outline: none; */
 
   &:hover {
     background: var(--surface-3);
   }
 
-  &:active {
+  &:active,
+  &:focus {
     background: var(--surface);
   }
 

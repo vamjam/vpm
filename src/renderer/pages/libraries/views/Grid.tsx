@@ -12,9 +12,10 @@ const GAP = 10
 type GridProps = {
   data: Asset[]
   width?: number
+  height?: number
 }
 
-export default function Grid({ data, width = 0 }: GridProps) {
+export default function Grid({ data, width = 0, height = 0 }: GridProps) {
   const [selected, setSelected] = useState<string[]>([])
   const columnCount = Math.max(1, Math.floor((width + GAP) / (COLUMN + GAP)))
 
@@ -28,6 +29,7 @@ export default function Grid({ data, width = 0 }: GridProps) {
   return (
     <ReactWindowGrid
       className={styles.container}
+      style={{ width, height }}
       columnCount={columnCount}
       columnWidth={Math.max(COLUMN + GAP, width / columnCount)}
       rowCount={Math.ceil(data.length / columnCount)}

@@ -1,52 +1,13 @@
-import { type CustomScheme } from 'electron'
-import { AssetService } from '~/asset/asset.service.ts'
-// import imageExtensions from '~/asset/exts/image-extensions.json' with { type: 'json' }
-import { protocol } from '~/core/electron.ts'
-import { ExifTool } from '~/core/external.ts'
-import { Readable, fs, fsp, path } from '~/core/node.ts'
+import { type CustomScheme, protocol } from '~/core/electron.ts'
+import { IZipEntry, Zip, stringSimilarity } from '~/core/external.ts'
+import { fileURLToPath, path } from '~/core/node.ts'
 
-const THUMBNAIL_SCHEME = 'thumbnail'
-
-// const __imageMimeTypes: Record<string, string> = {}
-
-// async function getImageMimeTypes() {
-//   if (Object.keys(__imageMimeTypes).length) return __imageMimeTypes
-
-//   const db = (await import('mime-db')).default
-
-//   Object.keys(db).forEach((key) => {
-//     const { extensions } = db[key]
-
-//     extensions?.forEach((ext) => {
-//       __imageMimeTypes[ext] = key
-//     })
-//   })
-
-//   return __imageMimeTypes
-// }
-
-// const imageMimeTypes: Record<string, string> = {
-//   apng: 'image/apng',
-//   avif: 'image/avif',
-//   bmp: 'image/bmp',
-//   gif: 'image/gif',
-//   heic: 'image/heic',
-//   heif: 'image/heif',
-//   ico: 'image/x-icon',
-//   jpe: 'image/jpeg',
-//   jpeg: 'image/jpeg',
-//   jpg: 'image/jpeg',
-//   png: 'image/png',
-//   svg: 'image/svg+xml',
-//   svgz: 'image/svg+xml',
-//   tif: 'image/tiff',
-//   tiff: 'image/tiff',
-//   webp: 'image/webp',
-// }
+const VPM_SCHEME = 'vpm'
+const CACHE_LENGTH = 60 * 60 * 24 * 7 * 52 // 1 year
 
 const schemes: CustomScheme[] = [
   {
-    scheme: THUMBNAIL_SCHEME,
+    scheme: VPM_SCHEME,
     privileges: {
       standard: true,
       secure: true,
@@ -61,35 +22,32 @@ const schemes: CustomScheme[] = [
 export function registerThumbnailProtocol() {
   protocol.registerSchemesAsPrivileged(schemes)
 
-  return (exiftool: ExifTool, assetServiceGetter: () => AssetService) => {
-    protocol.handle(THUMBNAIL_SCHEME, async (req) => {
-      const url = new URL(req.url)
-      const rawPath = url.host ? `/${url.host}${url.pathname}` : url.pathname
-      const filePath = path.normalize(decodeURIComponent(rawPath))
-      const assetService = assetServiceGetter()
-      // const ext = path.extname(filePath).slice(1).toLowerCase()
-      // const imageExtensions = await getImageMimeTypes()
-
-      // if (!imageExtensions[ext]) {
-      //   return new Response('Unsupported asset type', {
-      //     status: 415,
-      //     headers: {
-      //       'Content-Type': 'text/plain',
-      //     },
-      //   })
-      // }
-
+  return () => {
+    protocol.handle(VPM_SCHEME, async (req) => {
       try {
-        const fileStats = await fsp.stat(filePath)
+        const url = new URL(req.url)
+        const filePath = fileURLToPath(url.searchParams.get('file')!)
 
-        if (!fileStats.isFile()) {
-          return new Response('Not found', {
-            status: 404,
+        const thumbnail = await findThumbnail(filePath)
+
+        if (thumbnail) {
+          const contentType = detectThumbnailMimeType(thumbnail) ?? 'image/jpeg'
+
+          return new Response(new Uint8Array(thumbnail), {
+            status: 200,
             headers: {
-              'Content-Type': 'text/plain',
+              'Content-Type': contentType,
+              'Cache-Control': `public, max-age=${CACHE_LENGTH}`,
             },
           })
         }
+
+        return new Response('Not found', {
+          status: 404,
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+        })
       } catch {
         return new Response('Not found', {
           status: 404,
@@ -98,50 +56,60 @@ export function registerThumbnailProtocol() {
           },
         })
       }
-
-      const thumbnail = await extractThumbnailBuffer(exiftool, filePath)
-
-      if (thumbnail) {
-        const contentType = detectThumbnailMimeType(thumbnail) ?? 'image/jpeg'
-
-        return new Response(thumbnail, {
-          status: 200,
-          headers: {
-            'Content-Type': contentType,
-          },
-        })
-      }
-
-      const asset = await assetService.getAssetByPath(filePath)
-      const contentType = asset?.mimeType
-      const stream = fs.createReadStream(filePath)
-      const body = Readable.toWeb(stream)
-
-      return new Response(body, {
-        status: 200,
-        headers: {
-          'Content-Type': contentType,
-        },
-      })
     })
   }
 }
 
-async function extractThumbnailBuffer(
-  exiftool: ExifTool,
-  filePath: string,
-): Promise<Buffer | undefined> {
-  const tagNames = ['ThumbnailImage', 'PreviewImage', 'JpgFromRaw']
+async function findThumbnail(filePath: string) {
+  const zip = new Zip(filePath)
+  const packageName = path.basename(filePath, path.extname(filePath))
+  const imageMap = imageMapParser(packageName)
+  const images = zip
+    .getEntries()
+    .filter(imageFilter)
+    .map(imageMap)
+    .sort((a, b) => b.sort - a.sort)
 
-  for (const tag of tagNames) {
-    try {
-      return exiftool.extractBinaryTagToBuffer(tag, filePath)
-    } catch {
-      // Try the next tag when a thumbnail isn't present.
-    }
+  if (images.length === 0) {
+    return undefined
   }
 
-  return undefined
+  return extractBuffer(zip, images[0].path)
+}
+
+const IMAGE_EXTS = ['.png', '.jpg', '.jpeg']
+
+function imageFilter(entry: IZipEntry) {
+  if (entry.isDirectory || entry.entryName.includes('Texture')) {
+    return false
+  }
+
+  return IMAGE_EXTS.includes(path.extname(entry.entryName))
+}
+
+function imageMapParser(packageName: string) {
+  return (entry: IZipEntry) => {
+    const { entryName } = entry
+    const imageName = path.basename(entryName, path.extname(entryName))
+    const score = stringSimilarity.compareTwoStrings(packageName, imageName)
+
+    return {
+      sort: Math.floor(score * 100),
+      path: entryName,
+    }
+  }
+}
+
+async function extractBuffer(zip: Zip, path: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    zip.getEntry(path)?.getDataAsync((data, err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(data)
+      }
+    })
+  })
 }
 
 function detectThumbnailMimeType(buffer: Buffer): string | undefined {

@@ -1,6 +1,6 @@
 import * as electron from 'electron'
 
-export { type UtilityProcess } from 'electron'
+export { type UtilityProcess, type CustomScheme } from 'electron'
 
 const {
   app,

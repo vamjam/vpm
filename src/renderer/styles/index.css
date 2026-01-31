@@ -3,6 +3,7 @@
 @import '@fontsource-variable/inter';
 @import './form.css';
 @import './tokens.css';
+@import './scrollbars.css';
 
 * {
   -webkit-font-smoothing: auto;
@@ -31,8 +32,4 @@ a {
 #root {
   width: 100%;
   height: 100vh;
-}
-
-h1 {
-  app-region: drag;
 }

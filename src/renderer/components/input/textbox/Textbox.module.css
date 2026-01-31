@@ -32,7 +32,7 @@
 
   &:focus-within {
     background: var(--surface);
-    outline: none;
+    /* outline: none; */
   }
 
   &.withStartIcon {

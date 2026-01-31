@@ -19,6 +19,8 @@ export default function List({
 }
 
 type ListItemProps = PropsWithChildren<HTMLAttributes<HTMLLIElement>> & {
+  title: string
+  description: string
   icon?: ReactNode
   value?: ReactNode
   onClick?: MouseEventHandler
@@ -26,31 +28,34 @@ type ListItemProps = PropsWithChildren<HTMLAttributes<HTMLLIElement>> & {
 }
 
 export function ListItem({
-  children,
   icon,
   value,
   onClick,
   endSlot,
+  title,
+  description,
   ...props
 }: ListItemProps) {
-  const iconRendered = icon ? <span className={styles.icon}>{icon}</span> : null
-  const content = (
+  const innerContent = (
     <Fragment>
-      {iconRendered}
-      <div className={styles.linkContent}>{children}</div>
+      {icon ? <span className={styles.icon}>{icon}</span> : null}
+      <div className={styles.linkContent}>
+        <h4>{title}</h4>
+        <span className={styles.description}>{description}</span>
+      </div>
       {value}
       {endSlot}
     </Fragment>
   )
-  const rendered = onClick ? (
-    <button onClick={onClick}>{content}</button>
+  const content = onClick ? (
+    <button onClick={onClick}>{innerContent}</button>
   ) : (
-    <div>{content}</div>
+    <div>{innerContent}</div>
   )
 
   return (
     <li {...props} className={styles.listitem}>
-      {rendered}
+      {content}
     </li>
   )
 }

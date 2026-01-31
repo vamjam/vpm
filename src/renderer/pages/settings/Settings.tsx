@@ -16,6 +16,7 @@ import schema from '@main/config/schema.json' with { type: 'json' }
 import Select from '~/components/input/select/Select.tsx'
 import List, { ListItem } from '~/components/layout/list/List.tsx'
 import Page from '~/pages/Page.tsx'
+import styles from './Settings.module.css'
 
 type SettingEntry = {
   key: string
@@ -36,13 +37,26 @@ const logLevels = [
 const settingsMap = {
   'log.level': {
     icon: <LogIcon />,
-    value: (value: number) => {
-      const options = logLevels.map((level) => ({
-        value: level,
+    value: (value: number, refresh: () => Promise<void>) => {
+      const options = logLevels.map((level, index) => ({
+        value: String(index),
         label: level,
       }))
 
-      return <Select options={options} value={logLevels[value]} />
+      const handleClick = async (value: string) => {
+        const num = Number(value)
+
+        await window.api['config.set']('log.level', num)
+        await refresh()
+      }
+
+      return (
+        <Select
+          options={options}
+          value={String(value)}
+          onChange={handleClick}
+        />
+      )
     },
   },
   'data.path': {
@@ -102,7 +116,7 @@ export default function Settings() {
           key,
           description: prop.description,
           title: prop.title,
-          value: mapValue(value as never),
+          value: mapValue(value as never, fetchSettings),
           icon: mapped.icon,
           onClick,
         }
@@ -121,17 +135,17 @@ export default function Settings() {
       titlebar={{
         title: 'Settings',
       }}>
-      <List>
-        {state.map(({ key, title, description, ...rest }) => (
-          <ListItem
-            key={key}
-            {...rest}
-            endSlot={rest.onClick && <RightArrowIcon />}>
-            <h4>{title}</h4>
-            <span>{description}</span>
-          </ListItem>
-        ))}
-      </List>
+      <div className={styles.container}>
+        <List>
+          {state.map(({ key, ...rest }) => (
+            <ListItem
+              key={key}
+              {...rest}
+              endSlot={rest.onClick && <RightArrowIcon />}
+            />
+          ))}
+        </List>
+      </div>
     </Page>
   )
 }

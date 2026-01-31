@@ -4,7 +4,6 @@
   "type": "object",
   "required": [
     "app.env",
-    "app.language",
     "app.version",
     "log.level",
     "data.path",
@@ -22,12 +21,12 @@
   },
   "properties": {
     "vam.path": {
-      "title": "VaM Folder Path",
+      "title": "VaM installation folder",
       "type": "string",
-      "description": "The file system path to the VaM installation folder."
+      "description": "Path to the VaM installation folder."
     },
     "app.env": {
-      "title": "Application Environment",
+      "title": "Application environment",
       "oneOf": [
         {
           "enum": ["production", "development", "test"]
@@ -35,53 +34,46 @@
       ],
       "default": "production",
       "readOnly": true,
-      "description": "The environment in which the application is running."
-    },
-    "app.language": {
-      "title": "Application Language",
-      "type": "string",
-      "default": "en-US",
-      "readOnly": true,
-      "description": "The language code for the application's user interface."
+      "description": "Application environment."
     },
     "app.version": {
-      "title": "Application Version",
+      "title": "Application version",
       "type": "string",
       "default": "0.1.0",
       "readOnly": true,
-      "description": "The current version of the application."
+      "description": "Current application version."
     },
     "log.level": {
-      "title": "Logging Level",
+      "title": "Log level",
       "oneOf": [
         {
           "enum": [0, 1, 2, 3]
         }
       ],
       "default": 1,
-      "description": "The level of logging detail to be recorded by the application."
+      "description": "Logging detail level. Changes take effect on next start."
     },
     "data.path": {
-      "title": "Userdata Storage Path",
+      "title": "Application storage path",
       "type": "string",
-      "description": "The file system path where application data is stored."
+      "description": "Path where application data is stored."
     },
     "window.height": {
-      "title": "Window Height",
+      "title": "Window height",
       "type": "number",
       "default": 800,
-      "description": "The height of the application window in pixels.",
+      "description": "Window height in pixels.",
       "readOnly": true
     },
     "window.width": {
-      "title": "Window Width",
+      "title": "Window width",
       "type": "number",
       "default": 1200,
-      "description": "The width of the application window in pixels.",
+      "description": "Window width in pixels.",
       "readOnly": true
     },
     "window.x": {
-      "title": "Window X Position",
+      "title": "Window x position",
       "default": "center",
       "readOnly": true,
       "oneOf": [
@@ -92,10 +84,10 @@
           "type": "number"
         }
       ],
-      "description": "The x-coordinate of the application window's position on the screen."
+      "description": "Window x-position on screen."
     },
     "window.y": {
-      "title": "Window Y Position",
+      "title": "Window y position",
       "default": "center",
       "readOnly": true,
       "oneOf": [
@@ -106,7 +98,7 @@
           "type": "number"
         }
       ],
-      "description": "The y-coordinate of the application window's position on the screen."
+      "description": "Window y-position on screen."
     }
   }
 }

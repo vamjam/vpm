@@ -1,10 +1,11 @@
 import { promises as fsp } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { AssetType, assets } from '@shared/entities.ts'
 import fileEntryCache, { FileDescriptor } from 'file-entry-cache'
+import AssetType, { AssetTypeDisplayNameMap } from '@shared/AssetType.ts'
+import { assets } from '@shared/entities.ts'
 import { createDB, parseArgs } from './api.ts'
-import { assetPathMap } from './asset-path.map.ts'
+import assetTypePathMap from './assetTypePathMap.ts'
 
 const args = parseArgs()
 
@@ -22,20 +23,46 @@ try {
   const { dir, dbPath } = args
 
   const rootDir = path.resolve(dir)
-
-  const cacheDir = path.join(path.dirname(dbPath), '.vpm-cache')
-  const cache = fileEntryCache.create('finder', cacheDir, {
+  const cacheDir = path.join(path.dirname(dbPath))
+  const cache = fileEntryCache.create('scanner', cacheDir, {
     cwd: rootDir,
     useCheckSum: true,
   })
 
-  type NewAsset = typeof assets.$inferInsert
-  const pendingAssets: NewAsset[] = []
-  const pendingDescriptors: ReturnType<typeof cache.getFileDescriptor>[] = []
+  console.log(`Using cache directory: ${cacheDir}`)
+  console.log(`Scanning ${rootDir} for assets...`)
 
-  for (const [assetType, meta] of Object.entries(assetPathMap)) {
+  const pendingAssets: (typeof assets.$inferInsert)[] = []
+  const pendingDescriptors: ReturnType<typeof cache.getFileDescriptor>[] = []
+  const batchSize = 50
+
+  const flushBatch = async () => {
+    if (!pendingAssets.length) return
+
+    console.log(`Importing ${pendingAssets.length} assets...`)
+
+    await db.insert(assets).values(pendingAssets).onConflictDoNothing()
+
+    for (const descriptor of pendingDescriptors) {
+      descriptor.meta.data = {
+        ...(descriptor.meta.data ?? {}),
+        imported: true,
+      }
+    }
+
+    pendingAssets.length = 0
+    pendingDescriptors.length = 0
+
+    cache.reconcile()
+  }
+
+  for (const [assetType, meta] of Object.entries(assetTypePathMap)) {
+    const assetTypeDisplayName = AssetTypeDisplayNameMap[assetType as AssetType]
+
     for (const dirPath of meta.paths) {
       const scanRoot = path.join(rootDir, dirPath)
+
+      console.log(`Scanning ${scanRoot} for ${assetTypeDisplayName}`)
 
       for await (const filePath of walkFiles(scanRoot, meta.exts)) {
         const relativePath = path.relative(rootDir, filePath)
@@ -50,40 +77,40 @@ try {
         }
 
         if (!descriptor.changed && descriptor.meta.data?.imported) {
+          console.log(`Skipping ${assetTypeDisplayName}: ${relativePath}`)
+
           continue
         }
 
         const stats = await fsp.stat(filePath)
+        const fileName = path.basename(filePath)
+
+        console.log(`Found ${assetTypeDisplayName}: ${fileName}`)
 
         pendingAssets.push({
           fileCreatedAt: stats.birthtime,
           fileUpdatedAt: stats.mtime,
-          fileName: path.basename(filePath),
+          fileName,
           fileSize: stats.size,
           type: assetType as AssetType,
           url: pathToFileURL(filePath).href,
         })
 
         pendingDescriptors.push(descriptor)
+
+        if (pendingAssets.length >= batchSize) {
+          await flushBatch()
+        }
       }
     }
   }
 
-  if (pendingAssets.length) {
-    await db.insert(assets).values(pendingAssets).onConflictDoNothing()
-
-    for (const descriptor of pendingDescriptors) {
-      descriptor.meta.data = {
-        ...(descriptor.meta.data ?? {}),
-        imported: true,
-      }
-    }
-  }
-
-  cache.reconcile()
+  await flushBatch()
 } catch (err) {
   console.error((err as Error)?.message)
 } finally {
+  console.log(`Shutting down worker...`)
+
   client.close()
 
   process.exit(0)

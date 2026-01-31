@@ -28,14 +28,21 @@ export class ConfigService {
         definitions,
       },
       schema: properties,
-      // @ts-expect-error: Other defaults live in the schema
-      // as they are not dynamic
+      // @ts-expect-error: Static defaults are defined in
+      // schema.json.
       defaults: {
         'data.path': app.getPath('userData'),
       },
     })
 
     this.path = this.#store.path
+  }
+
+  onChange(
+    key: ConfigKey,
+    callback: (newValue: unknown, oldValue: unknown) => void,
+  ): () => void {
+    return this.#store.onDidChange(key, callback)
   }
 
   getStore(): ConfigSchema {

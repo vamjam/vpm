@@ -1,7 +1,7 @@
-import AssetType from '@shared/AssetType.ts'
 import { useRef } from 'react'
 import { useParams } from 'react-router'
 import { useResizeObserver } from 'usehooks-ts'
+import AssetType from '@shared/AssetType.ts'
 import useIPC from '~/hooks/useIPC.ts'
 import useStore from '~/hooks/useStore.ts'
 import Toolbar from '~/pages/libraries/toolbar/Toolbar.tsx'
@@ -30,30 +30,28 @@ export default function Assets() {
       : [type!]
   const list = useIPC('assets.list', ...assetTypes)
   const ref = useRef<HTMLDivElement>(null!)
-  const { width } = useResizeObserver({ ref })
+  const { width, height } = useResizeObserver({ ref })
   const view = useStore((state) => state['toolbar.view'])
+
+  if (!type) return null
 
   return (
     <Page
       titlebar={{
-        title: getTitleForType(type),
+        title: assetTypeNameMap[type as keyof typeof assetTypeNameMap],
         children: <Toolbar />,
       }}>
-      {/* <div ref={ref} className={styles.container}>
-        {view === 'grid' && <Grid data={list.data} width={width} />}
-      </div> */}
+      <div ref={ref} className={styles.container}>
+        {view === 'grid' && (
+          <Grid data={list.data} width={width} height={height} />
+        )}
+      </div>
     </Page>
   )
 }
 
-const titleTypeMap = {
+const assetTypeNameMap = {
+  [AssetType.AddonPackage]: 'Addon Packages',
   [AssetType.Scene]: 'Scenes',
-  [AssetType.AddonPackage]: 'Addons',
   presets: 'Presets',
-} as const
-
-function getTitleForType(type?: string) {
-  if (!type) return
-
-  return titleTypeMap[type as keyof typeof titleTypeMap]
 }

@@ -45,7 +45,7 @@ export abstract class Service<E extends EventMap = EventMap>
 
     const name = Object.getPrototypeOf(this).constructor.name
 
-    this.log.info(`Initializing service ${name}`)
+    this.log.info(`Initialized service ${name}`)
   }
 
   [Symbol.dispose](): void {

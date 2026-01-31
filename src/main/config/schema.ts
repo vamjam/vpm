@@ -6,54 +6,49 @@
  */
 
 /**
- * The file system path to the VaM installation folder.
+ * Path to the VaM installation folder.
  */
-export type VaMFolderPath = string;
+export type VaMInstallationFolder = string;
 /**
- * The environment in which the application is running.
+ * Application environment.
  */
 export type ApplicationEnvironment = "production" | "development" | "test";
 /**
- * The language code for the application's user interface.
- */
-export type ApplicationLanguage = string;
-/**
- * The current version of the application.
+ * Current application version.
  */
 export type ApplicationVersion = string;
 /**
- * The level of logging detail to be recorded by the application.
+ * Logging detail level. Changes take effect on next start.
  */
-export type LoggingLevel = 0 | 1 | 2 | 3;
+export type LogLevel = 0 | 1 | 2 | 3;
 /**
- * The file system path where application data is stored.
+ * Path where application data is stored.
  */
-export type UserdataStoragePath = string;
+export type ApplicationStoragePath = string;
 /**
- * The height of the application window in pixels.
+ * Window height in pixels.
  */
 export type WindowHeight = number;
 /**
- * The width of the application window in pixels.
+ * Window width in pixels.
  */
 export type WindowWidth = number;
 /**
- * The x-coordinate of the application window's position on the screen.
+ * Window x-position on screen.
  */
 export type WindowXPosition = Position | number;
 export type Position = "center" | "start" | "end";
 /**
- * The y-coordinate of the application window's position on the screen.
+ * Window y-position on screen.
  */
 export type WindowYPosition = Position | number;
 
 export interface ConfigSchema {
-  "vam.path"?: VaMFolderPath;
+  "vam.path"?: VaMInstallationFolder;
   "app.env": ApplicationEnvironment;
-  "app.language": ApplicationLanguage;
   "app.version": ApplicationVersion;
-  "log.level": LoggingLevel;
-  "data.path": UserdataStoragePath;
+  "log.level": LogLevel;
+  "data.path": ApplicationStoragePath;
   "window.height": WindowHeight;
   "window.width": WindowWidth;
   "window.x": WindowXPosition;

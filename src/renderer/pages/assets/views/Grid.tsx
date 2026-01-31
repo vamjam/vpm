@@ -1,20 +1,21 @@
-import { Asset } from '@shared/types.ts'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { CellComponentProps, Grid as ReactWindowGrid } from 'react-window'
+import { Asset } from '@shared/types.ts'
 // import truncateText from 'truncate-text'
 import styles from './Grid.module.css'
 
-const COLUMN = 250
-const ROW = 250
-const GAP = 10
+const COLUMN = 240
+const ROW = 240
+const GAP = 2
 
 type GridProps = {
   data?: Asset[]
   width?: number
+  height?: number
 }
 
-export default function Grid({ data, width = 0 }: GridProps) {
+export default function Grid({ data, width = 0, height = 0 }: GridProps) {
   const [selected, setSelected] = useState<string[]>([])
   const columnCount = Math.max(1, Math.floor((width + GAP) / (COLUMN + GAP)))
 
@@ -28,6 +29,7 @@ export default function Grid({ data, width = 0 }: GridProps) {
   return (
     <ReactWindowGrid
       className={styles.container}
+      style={{ width, height, overflow: 'unset', overflowX: 'hidden' }}
       columnCount={columnCount}
       columnWidth={Math.max(COLUMN + GAP, width / columnCount)}
       rowCount={data ? Math.ceil(data.length / columnCount) : 0}
@@ -65,9 +67,9 @@ function Cell({
   const asset = data?.[rowIndex * columnCount + columnIndex] as
     | Asset
     | undefined
-  const assetURL = asset?.url.replace('file://', 'thumbnail://')
-
   if (!asset) return <></>
+
+  const assetURL = `vpm://thumbnail?file=${encodeURIComponent(asset.url)}`
 
   return (
     <div
@@ -89,13 +91,7 @@ function Cell({
         style={THUMBNAIL_STYLE}
       />
       <div className={styles.content}>
-        <h4>
-          {asset.fileName}
-          {/* {truncateText(asset.fileName, {
-            maxLength: 60,
-            position: 'middle',
-          })} */}
-        </h4>
+        <h4>{asset.fileName}</h4>
       </div>
     </div>
   )

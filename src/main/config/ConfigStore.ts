@@ -1,6 +1,7 @@
-import Conf from 'conf'
-import schema from './schema.json' with { type: 'json' }
-import { ConfigSchema } from './schema.ts'
+import Conf from 'conf';
+import schema from './schema.json' with { type: 'json' };
+import { ConfigSchema } from './schema.ts';
+
 
 export type ConfigKey = keyof ConfigSchema
 export type Config = ConfigSchema

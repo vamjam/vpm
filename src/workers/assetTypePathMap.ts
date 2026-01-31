@@ -1,14 +1,11 @@
-import { AssetType } from '@shared/entities.ts'
+import AssetType from '@shared/AssetType.ts'
 
 export type AssetMeta = {
   paths: string[]
   exts: string[]
 }
 
-export const assetPathMap: Record<
-  Exclude<AssetType, AssetType.Texture>,
-  AssetMeta
-> = {
+const map: Record<Exclude<AssetType, AssetType.Texture>, AssetMeta> = {
   [AssetType.AddonPackage]: {
     paths: ['AddonPackages'],
     exts: ['.var'],
@@ -90,3 +87,5 @@ export const assetPathMap: Record<
     exts: ['.vap'],
   },
 }
+
+export default map

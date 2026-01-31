@@ -1,6 +1,6 @@
 import {
-  Grid24Regular as GridIcon,
-  List24Regular as ListIcon,
+  Grid20Regular as GridIcon,
+  List20Regular as ListIcon,
   Search16Regular as SearchIcon,
 } from '@fluentui/react-icons'
 import clsx from 'clsx'

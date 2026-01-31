@@ -22,4 +22,28 @@ enum AssetType {
   Texture = 'texture',
 }
 
+export const AssetTypeDisplayNameMap = {
+  [AssetType.AddonPackage]: 'Addon Package',
+  [AssetType.AnimationPreset]: 'Animation Preset',
+  [AssetType.AppearancePreset]: 'Appearance Preset',
+  [AssetType.AssetBundle]: 'Asset Bundle',
+  [AssetType.BreastPreset]: 'Breast Preset',
+  [AssetType.Clothing]: 'Clothing',
+  [AssetType.ClothingPreset]: 'Clothing Preset',
+  [AssetType.GeneralPreset]: 'General Preset',
+  [AssetType.GlutePreset]: 'Glute Preset',
+  [AssetType.Hair]: 'Hair',
+  [AssetType.HairPreset]: 'Hair Preset',
+  [AssetType.Morph]: 'Morph',
+  [AssetType.MorphPreset]: 'Morph Preset',
+  [AssetType.PluginPreset]: 'Plugin Preset',
+  [AssetType.PosePreset]: 'Pose Preset',
+  [AssetType.Scene]: 'Scene',
+  [AssetType.Script]: 'Script',
+  [AssetType.ScriptPreset]: 'Script Preset',
+  [AssetType.SkinPreset]: 'Skin Preset',
+  [AssetType.Subscene]: 'Subscene',
+  [AssetType.Texture]: 'Texture',
+}
+
 export default AssetType

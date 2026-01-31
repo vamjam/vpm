@@ -11,21 +11,33 @@ export class AssetService extends Service {
   constructor(...args: ConstructorParameters<typeof Service>) {
     super(...args)
 
-    this.app.window.on('show', this.startImportWorker.bind(this))
+    this.app.window.on('show', () => this.startScannerOnDelay())
+
+    this.config.onChange('vam.path', (newValue) => {
+      if (newValue) {
+        this.startScannerOnDelay()
+      }
+    })
   }
 
-  startImportWorker() {
-    if (!this.dbURL || !this.config.get('vam.path')) return
+  startScannerOnDelay() {
+    // setTimeout(() => this.startScanner(), 500)
+  }
 
-    createWorker(
-      this.log,
-      path.join(app.getAppPath(), 'dist/import.worker.js'),
-      'ImportWorker',
-      {
-        dir: this.config.get('vam.path'),
+  startScanner() {
+    const vamPath = this.config.get('vam.path')
+
+    if (!this.dbURL || !vamPath) return
+
+    createWorker({
+      log: this.log,
+      filePath: path.join(app.getAppPath(), 'dist/scan.worker.js'),
+      serviceName: 'ScanWorker',
+      args: {
+        dir: vamPath,
         dbPath: fileURLToPath(this.dbURL),
       },
-    )
+    })
   }
 
   @expose('assets.list')

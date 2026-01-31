@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['./import.worker.ts'],
+  entry: ['./scan.worker.ts'],
   outDir: '../../dist',
   format: ['esm'],
   tsconfig: './tsconfig.json',

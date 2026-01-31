@@ -31,12 +31,12 @@ function Assets({ libraryId }: AssetsProps) {
   const { data } = useIPC('assets.list', libraryId)
   const assets = data ?? []
   const ref = useRef<HTMLDivElement>(null!)
-  const { width } = useResizeObserver({ ref })
+  const { width, height } = useResizeObserver({ ref })
   const view = useStore((state) => state['toolbar.view'])
 
   return (
     <div ref={ref} className={styles.container}>
-      {view === 'grid' && <Grid data={assets} width={width} />}
+      {view === 'grid' && <Grid data={assets} width={width} height={height} />}
     </div>
   )
 }

@@ -12,7 +12,7 @@
     display: flex;
     align-items: center;
     padding-inline: 12px;
-    padding-block: 7px;
+    padding-block: 5px;
 
     svg {
       color: currentColor;

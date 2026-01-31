@@ -15,20 +15,24 @@ import styles from './Select.module.css'
 type SelectProps = {
   options: { value: string; label: string }[]
   value: string
+  onChange?: (value: string) => void
 }
 
-export default function Select({ options, value }: SelectProps) {
+export default function Select({ options, onChange, value }: SelectProps) {
   return (
-    <Root value={value}>
+    <Root value={value} onValueChange={onChange}>
       <Trigger className={styles.trigger}>
         <Value />
         <DownIcon />
       </Trigger>
       <Portal>
         <Content className={styles.content}>
-          <Viewport>
+          <Viewport className={styles.viewport}>
             {options.map((option) => (
-              <Item key={option.value} value={option.value}>
+              <Item
+                key={option.value}
+                value={option.value}
+                className={styles.item}>
                 <ItemText>{option.label}</ItemText>
                 <ItemIndicator />
               </Item>
