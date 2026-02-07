@@ -5,8 +5,8 @@ import { Asset } from '@shared/types.ts'
 // import truncateText from 'truncate-text'
 import styles from './Grid.module.css'
 
-const COLUMN = 240
-const ROW = 240
+const COLUMN = 200
+const ROW = 260
 const GAP = 2
 
 type GridProps = {
@@ -69,7 +69,7 @@ function Cell({
     | undefined
   if (!asset) return <></>
 
-  const assetURL = `vpm://thumbnail?file=${encodeURIComponent(asset.url)}`
+  const assetURL = `vpm://${asset.type}?file=${encodeURIComponent(asset.url)}`
 
   return (
     <div

@@ -1,7 +1,7 @@
 import AssetType from '@shared/AssetType.ts'
 import * as entity from '@shared/entities.ts'
 import { type Asset } from '@shared/types.ts'
-import { app } from '~/core/electron.ts'
+import { MessageChannelMain, app } from '~/core/electron.ts'
 import { fileURLToPath, path } from '~/core/node.ts'
 import { Service, expose } from '~/core/service.ts'
 import { eq, inArray } from '~/db/drizzle.ts'
@@ -11,7 +11,9 @@ export class AssetService extends Service {
   constructor(...args: ConstructorParameters<typeof Service>) {
     super(...args)
 
-    this.app.window.on('show', () => this.startScannerOnDelay())
+    this.app.window.webContents.on('dom-ready', () =>
+      this.startScannerOnDelay(),
+    )
 
     this.config.onChange('vam.path', (newValue) => {
       if (newValue) {
@@ -36,6 +38,9 @@ export class AssetService extends Service {
       args: {
         dir: vamPath,
         dbPath: fileURLToPath(this.dbURL),
+      },
+      onMessage: (data) => {
+        this.app.window.webContents.postMessage('scan.worker', data)
       },
     })
   }

@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 import { useLocation } from 'react-router'
 import Sidebar from '~/components/sidebar/Sidebar.tsx'
 import useStore from '~/hooks/useStore.ts'
 import styles from './App.module.css'
+import Footer from './Footer.tsx'
 import Routes from './Routes.tsx'
 
 export default function App() {
@@ -19,11 +20,14 @@ export default function App() {
   }, [location.hash, location.pathname, location.search, setLastLocation])
 
   return (
-    <div className={styles.container}>
-      <Sidebar className={styles.sidebar} />
-      <div className={styles.content}>
-        <Routes />
+    <Fragment>
+      <div className={styles.container}>
+        <Sidebar className={styles.sidebar} />
+        <div className={styles.content}>
+          <Routes />
+        </div>
       </div>
-    </div>
+      <Footer className={styles.footer} />
+    </Fragment>
   )
 }

@@ -1,6 +1,7 @@
+import AssetType from '@shared/AssetType.ts'
 import { type CustomScheme, protocol } from '~/core/electron.ts'
 import { IZipEntry, Zip, stringSimilarity } from '~/core/external.ts'
-import { fileURLToPath, path } from '~/core/node.ts'
+import { fileURLToPath, fsp, path } from '~/core/node.ts'
 
 const VPM_SCHEME = 'vpm'
 const CACHE_LENGTH = 60 * 60 * 24 * 7 * 52 // 1 year
@@ -28,7 +29,10 @@ export function registerThumbnailProtocol() {
         const url = new URL(req.url)
         const filePath = fileURLToPath(url.searchParams.get('file')!)
 
-        const thumbnail = await findThumbnail(filePath)
+        const thumbnail = await findThumbnail(
+          url.hostname as AssetType,
+          filePath,
+        )
 
         if (thumbnail) {
           const contentType = detectThumbnailMimeType(thumbnail) ?? 'image/jpeg'
@@ -60,7 +64,26 @@ export function registerThumbnailProtocol() {
   }
 }
 
-async function findThumbnail(filePath: string) {
+async function findThumbnail(assetType: AssetType, filePath: string) {
+  switch (assetType) {
+    case AssetType.AddonPackage:
+      return findAddonPackageThumbnail(filePath)
+    case AssetType.Scene:
+      return findSceneThumbnail(filePath)
+    default:
+      return undefined
+  }
+}
+
+async function findSceneThumbnail(
+  filePath: string,
+): Promise<Buffer | undefined> {
+  return fsp.readFile(filePath.replace('.json', '.jpg'))
+}
+
+async function findAddonPackageThumbnail(
+  filePath: string,
+): Promise<Buffer | undefined> {
   const zip = new Zip(filePath)
   const packageName = path.basename(filePath, path.extname(filePath))
   const imageMap = imageMapParser(packageName)

@@ -1,4 +1,4 @@
-import { UtilityProcess, utilityProcess } from '~/core/electron.ts'
+import { utilityProcess } from '~/core/electron.ts'
 import { pms } from '~/core/external.ts'
 import { MainLogger } from '~/logger/index.ts'
 
@@ -15,7 +15,7 @@ type CreateWorkerOptions = {
   filePath: string
   serviceName: string
   args: Record<string, string | undefined>
-  onExit?: (duration: number) => void
+  onMessage?: <T>(message: T) => void
 }
 
 export function createWorker({
@@ -23,6 +23,7 @@ export function createWorker({
   filePath,
   serviceName,
   args,
+  onMessage,
 }: CreateWorkerOptions) {
   if (workers.has(serviceName)) {
     log.warn(`Worker [${serviceName}] already exists.`)
@@ -41,6 +42,7 @@ export function createWorker({
   })
 
   worker.stdout?.on('data', (data) => {
+    if (onMessage) onMessage(data.toString().trim())
     log.info(`[${serviceName}]: ${data.toString().trim()}`)
   })
 

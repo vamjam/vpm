@@ -1,27 +1,27 @@
-import { t } from '../main/db/drizzle.ts'
+import * as t from 'drizzle-orm/sqlite-core'
 import AssetType from './AssetType.ts'
-import * as utils from './utils.ts'
 
 export type Asset = typeof assets.$inferSelect
 export type Creator = typeof creators.$inferSelect
 
+const key = {
+  id: t
+    .text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+}
+
 export const assets = t.sqliteTable(
   'assets',
   {
-    ...utils.keys,
-    importedAt: t
-      .integer('imported_at', { mode: 'timestamp' })
-      .notNull()
-      .$defaultFn(() => new Date()),
-    fileCreatedAt: t.integer('file_created_at', { mode: 'timestamp' }),
-    fileUpdatedAt: t.integer('file_updated_at', { mode: 'timestamp' }),
-    fileName: t.text('file_name').notNull(),
-    fileSize: t.integer('file_size').notNull(),
+    ...key,
     type: t.text('type').$type<AssetType>().notNull(),
-    url: t.text('url').notNull(),
-    creatorId: t.integer('creator_id').references(() => creators.id),
-    tags: t.text('tags', { mode: 'json' }).$type<string[]>(),
-    keywords: t.text('keywords', { mode: 'json' }).$type<string[]>(),
+    creatorId: t.text('creator_id').references(() => creators.id),
+    name: t.text('name').notNull(),
+    description: t.text('description'),
+    licenseType: t.text('license_type'),
+    path: t.text('path').notNull(),
+    size: t.integer('size').notNull(),
     isHidden: t
       .integer('is_hidden', { mode: 'boolean' })
       .notNull()
@@ -32,15 +32,30 @@ export const assets = t.sqliteTable(
       .default(false),
   },
   (table) => [
-    t.uniqueIndex('ux_url').on(table.url),
+    t.index('ix_path').on(table.path),
     t.index('ix_type').on(table.type),
   ],
 )
 
+export const dependencies = t.sqliteTable('dependencies', {
+  assetId: t
+    .text('asset_id')
+    .notNull()
+    .references(() => assets.id),
+  dependencyURL: t.text('dependency_url').notNull(),
+  // creatorId: t
+  //   .text('creator_id')
+  //   .notNull()
+  //   .references(() => creators.id),
+  // packageName: t.text('package_name').notNull(),
+  // packageVersion: t.text('package_version').notNull(),
+  // dependencyPath: t.text('dependency_path').notNull(),
+})
+
 export const creators = t.sqliteTable(
   'creators',
   {
-    ...utils.keys,
+    ...key,
     name: t.text('name').notNull(),
     tags: t.text('tags', { mode: 'json' }).$type<string[]>(),
   },
