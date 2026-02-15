@@ -1,4 +1,3 @@
-import { ConfigStore } from '~/config/index.ts'
 import { fs, path, pathToFileURL } from '~/core/node.ts'
 import { MainLogger } from '~/logger/index.ts'
 import { LibSQLDatabase, drizzle } from './drizzle.ts'
@@ -23,14 +22,14 @@ const databaseConnection: DatabaseConnection = {
 }
 
 export default async function connect(
-  config: ConfigStore,
+  directory: string,
   log: MainLogger,
 ): Promise<DatabaseConnection> {
   if (databaseConnection.db && databaseConnection.client) {
     return databaseConnection
   }
 
-  const dbPath = path.join(config.get('data.path'), 'vpm.db')
+  const dbPath = path.join(directory, 'vpm.db')
   const dbURL = pathToFileURL(dbPath)
 
   await fs.promises.mkdir(path.dirname(dbPath), {
@@ -46,7 +45,7 @@ export default async function connect(
   databaseConnection.db = drizzle(databaseConnection.client)
   databaseConnection.url = dbURL.href
 
-  await runMigrations(databaseConnection.client, log)
+  // await runMigrations(databaseConnection.client, log)
 
   return databaseConnection
 }

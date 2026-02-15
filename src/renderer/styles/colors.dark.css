@@ -11,6 +11,8 @@
   --surface-x3: oklch(from var(--surface) 9% 0.03 h / 0.3);
 
   --accent: oklch(70% 0.3 18);
+  --accent-surface: oklch(from var(--accent) l c h / 0.48);
+
   --ink: oklch(85% 0 0);
   --ink-full: oklch(100% 0 0);
   --ink-muted: oklch(85% 0 0 / 0.5);

@@ -1,5 +1,8 @@
 .container {
-  padding-top: var(--space-7);
-  flex: 1;
-  min-height: 0;
+  height: 100vh;
+  width: calc(100% - 2px);
+
+  > div > div {
+    padding-right: 8px;
+  }
 }

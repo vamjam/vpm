@@ -1,6 +1,6 @@
 import path from 'node:path'
 import AdmZip, { IZipEntry } from 'adm-zip'
-import AssetType from '@shared/AssetType.ts'
+import AssetType, { getExt, getPath } from '@shared/AssetType.ts'
 import Scanner from './Scanner.ts'
 import * as SceneParser from './SceneParser.ts'
 import { Manifest, ManifestDependency, PendingRecord } from './types.ts'
@@ -16,12 +16,12 @@ const addonPackagesScanner = new Scanner({
 })
 
 await addonPackagesScanner.scan(
-  'AddonPackages',
-  '.var',
+  getPath(AssetType.AddonPackage),
+  getExt(AssetType.AddonPackage),
   async (filePath: string, relativePath: string) => {
     const zip = new AdmZip(filePath)
     const parsedFileName = parseFileName(filePath)
-    const scenes = SceneParser.fromAddonPackage(zip, filePath, relativePath)
+    const scenes = SceneParser.fromVarFile(zip, filePath, relativePath)
 
     return scenes
   },

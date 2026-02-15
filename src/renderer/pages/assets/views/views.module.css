@@ -1,26 +1,28 @@
 .card {
-  --radius: var(--br-4);
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  border-radius: var(--radius);
+  border-radius: var(--br-6);
+
+  &:hover {
+    background: var(--surface-2);
+  }
 
   &.selected {
     outline: 3px solid var(--accent);
     outline-offset: -3px;
-    border-radius: var(--radius);
+    background: var(--surface-2);
   }
 
   .thumbnail {
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: inherit;
+    width: inherit;
+    object-fit: cover;
+    border-radius: var(--br-4);
   }
 
   .content {
-    padding-inline: var(--space-3);
+    /* padding-inline: var(--space-8); */
   }
 
   h4 {

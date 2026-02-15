@@ -37,7 +37,7 @@ export abstract class Service<E extends EventMap = EventMap>
   }
 
   async initialize() {
-    const conn = await connect(this.config, this.log)
+    const conn = await connect(this.config.get('data.path'), this.log)
 
     this.db = conn.db
     this.dbURL = conn.url

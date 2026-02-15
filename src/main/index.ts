@@ -9,7 +9,7 @@ app.on('ready', async () => {
   const application = new Application()
   const { log } = application
 
-  registerThumbnailProtocolHandler()
+  registerThumbnailProtocolHandler(application.config)
 
   try {
     try {

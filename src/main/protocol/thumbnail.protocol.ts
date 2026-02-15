@@ -1,7 +1,8 @@
 import AssetType from '@shared/AssetType.ts'
+import { ConfigService } from '~/config/config.service.ts'
 import { type CustomScheme, protocol } from '~/core/electron.ts'
 import { IZipEntry, Zip, stringSimilarity } from '~/core/external.ts'
-import { fileURLToPath, fsp, path } from '~/core/node.ts'
+import { fsp, path } from '~/core/node.ts'
 
 const VPM_SCHEME = 'vpm'
 const CACHE_LENGTH = 60 * 60 * 24 * 7 * 52 // 1 year
@@ -23,14 +24,16 @@ const schemes: CustomScheme[] = [
 export function registerThumbnailProtocol() {
   protocol.registerSchemesAsPrivileged(schemes)
 
-  return () => {
+  return (config: ConfigService) => {
+    const vamPath = config.get('vam.path')!
+
     protocol.handle(VPM_SCHEME, async (req) => {
       try {
         const url = new URL(req.url)
-        const filePath = fileURLToPath(url.searchParams.get('file')!)
+        const filePath = path.join(vamPath, decodeURIComponent(url.pathname))
 
         const thumbnail = await findThumbnail(
-          url.hostname as AssetType,
+          url.hostname.split('.')[1] as AssetType,
           filePath,
         )
 
@@ -65,10 +68,21 @@ export function registerThumbnailProtocol() {
 }
 
 async function findThumbnail(assetType: AssetType, filePath: string) {
+  if (!filePath) return undefined
   switch (assetType) {
     case AssetType.AddonPackage:
       return findAddonPackageThumbnail(filePath)
     case AssetType.Scene:
+    case AssetType.AppearancePreset:
+    case AssetType.AnimationPreset:
+    case AssetType.ClothingPreset:
+    case AssetType.GeneralPreset:
+    case AssetType.GlutePreset:
+    case AssetType.HairPreset:
+    case AssetType.MorphPreset:
+    case AssetType.PosePreset:
+    case AssetType.ScriptPreset:
+    case AssetType.SkinPreset:
       return findSceneThumbnail(filePath)
     default:
       return undefined
@@ -78,7 +92,9 @@ async function findThumbnail(assetType: AssetType, filePath: string) {
 async function findSceneThumbnail(
   filePath: string,
 ): Promise<Buffer | undefined> {
-  return fsp.readFile(filePath.replace('.json', '.jpg'))
+  const imagePath = filePath.replace(/\.[^/.]+$/, '.jpg')
+
+  return fsp.readFile(imagePath)
 }
 
 async function findAddonPackageThumbnail(

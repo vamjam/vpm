@@ -3,11 +3,21 @@
 @import '@fontsource-variable/inter';
 @import './form.css';
 @import './tokens.css';
-@import './scrollbars.css';
 
 * {
   -webkit-font-smoothing: auto;
 }
+
+/* * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+} */
+
+/* *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+} */
 
 :root {
   color-scheme: light dark;

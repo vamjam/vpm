@@ -1,37 +1,47 @@
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { Client, createClient } from '@libsql/client'
-import { LibSQLDatabase, drizzle } from 'drizzle-orm/libsql'
-import fileEntryCache, { FileEntryCache } from 'file-entry-cache'
-import { assets } from '@shared/entities.ts'
+import { LibSQLDatabase } from 'drizzle-orm/libsql'
+import fileEntryCache, {
+  FileDescriptor,
+  FileEntryCache,
+} from 'file-entry-cache'
+import DBSession from './DBSession.ts'
 import { findFilesByExtension } from './fs.ts'
-import { FileDescriptorWithMeta, PendingRecord } from './types.ts'
 
-const dbRef = {
-  db: null as LibSQLDatabase | null,
-  client: null as Client | null,
-}
-
-export type ScanOptions = {
+export type ScanOptions<T> = {
   cacheName: string
   vamPath: string
   dbPath: string
   batchSize: number
+  scanFolders: string[]
+  scanExts: string[]
+  enqueue: (filePath: string, relativePath: string) => Promise<T[] | undefined>
+  flush: (db: LibSQLDatabase, pendingRecords: T[]) => Promise<void>
 }
 
-export default class Scanner {
-  #rootDir: string
-  #dbPath: string
+export type FileDescriptorWithMeta = FileDescriptor & {
+  meta: {
+    data?: {
+      imported?: boolean
+    }
+  }
+}
 
+export default class Scanner<T> {
+  #vamPath: string
+  #dbSession: DBSession
   #cache: FileEntryCache
-
-  #pendingRecords: PendingRecord[] = []
+  #pendingRecords: T[] = []
   #pendingDescriptors: FileDescriptorWithMeta[] = []
-  #batchSize: number
 
-  constructor(options: ScanOptions) {
-    this.#dbPath = options.dbPath
-    this.#rootDir = path.resolve(options.vamPath)
+  #batchSize: number
+  #scanFolders: string[]
+  #scanExts: string[]
+
+  flush: (db: LibSQLDatabase, pendingRecords: T[]) => Promise<void>
+  enqueue: (filePath: string, relativePath: string) => Promise<T[] | undefined>
+
+  constructor(options: ScanOptions<T>) {
+    this.#vamPath = path.resolve(options.vamPath)
     this.#cache = fileEntryCache.create(
       options.cacheName,
       path.dirname(options.dbPath),
@@ -40,74 +50,69 @@ export default class Scanner {
       },
     )
     this.#batchSize = options.batchSize
+    this.enqueue = options.enqueue
+    this.flush = options.flush
+    this.#scanFolders = options.scanFolders
+    this.#scanExts = options.scanExts
+
+    this.#dbSession = new DBSession(options.dbPath)
   }
 
-  get #db() {
-    if (dbRef.db) return dbRef.db
+  async scan() {
+    const db = this.#dbSession.acquire()
 
-    dbRef.client = createClient({ url: pathToFileURL(this.#dbPath).href })
-    dbRef.db = drizzle(dbRef.client)
+    for (const folder of this.#scanFolders) {
+      for (const ext of this.#scanExts) {
+        const files = await this.#find(folder, ext)
+        const total = files.length
 
-    return dbRef.db
-  }
+        for await (const file of files) {
+          const index = files.indexOf(file)
+          const pct = Math.round(index + (1 / total) * 100)
+          const fmtPct = pct.toString().padStart(3, ' ')
 
-  find(dir: string, ext: string) {
-    return findFilesByExtension(this.resolve(dir), ext)
-  }
+          console.log(
+            JSON.stringify({
+              type: 'scan.pct',
+              folder,
+              pct: fmtPct,
+            }),
+          )
 
-  resolve(...paths: string[]) {
-    return path.join(this.#rootDir, ...paths)
-  }
+          const relativePath = path.relative(this.#resolve(folder), file)
+          const descriptor = this.#cache.getFileDescriptor(
+            relativePath,
+          ) as FileDescriptorWithMeta
 
-  async scan(
-    scanFolder: string,
-    scanExt: string,
-    onEachFile: (
-      filePath: string,
-      relativePath: string,
-    ) => Promise<PendingRecord[] | undefined>,
-  ) {
-    const files = await this.find(scanFolder, scanExt)
-    const total = files.length
+          if (!descriptor.changed && descriptor.meta.data?.imported) {
+            continue
+          }
 
-    for await (const file of files) {
-      const index = files.indexOf(file)
-      const pct = Math.round(index + (1 / total) * 100)
-      const fmtPct = pct.toString().padStart(3, ' ')
+          const records = await this.enqueue(file, relativePath)
 
-      console.log(
-        JSON.stringify({ type: 'scan.pct', folder: scanFolder, pct: fmtPct }),
-      )
+          if (records) {
+            this.#pendingRecords.push(...records)
+            this.#pendingDescriptors.push(descriptor)
+          }
 
-      const relativePath = path.relative(this.resolve(scanFolder), file)
-      const descriptor = this.#cache.getFileDescriptor(
-        relativePath,
-      ) as FileDescriptorWithMeta
-
-      if (!descriptor.changed && descriptor.meta.data?.imported) {
-        continue
-      }
-
-      const records = await onEachFile(file, relativePath)
-
-      if (records) {
-        this.#pendingRecords.push(...records)
-        this.#pendingDescriptors.push(descriptor)
-      }
-
-      if (this.#pendingRecords.length >= this.#batchSize) {
-        await this.#flush()
+          if (this.#pendingRecords.length >= this.#batchSize) {
+            await this.#flush(db)
+          }
+        }
       }
     }
+
+    await this.#flush(db)
   }
 
-  async #flush() {
+  close() {
+    this.#dbSession.release()
+  }
+
+  async #flush(db: LibSQLDatabase) {
     if (!this.#pendingRecords.length) return
 
-    await this.#db
-      .insert(assets)
-      .values(this.#pendingRecords)
-      .onConflictDoNothing()
+    await this.flush(db, this.#pendingRecords)
 
     for (const descriptor of this.#pendingDescriptors) {
       descriptor.meta.data = {
@@ -116,16 +121,17 @@ export default class Scanner {
       }
     }
 
+    this.#cache.reconcile()
+
     this.#pendingRecords = []
     this.#pendingDescriptors = []
-
-    this.#cache.reconcile()
   }
 
-  close() {
-    dbRef.client?.close()
+  #find(dir: string, ext: string) {
+    return findFilesByExtension(this.#resolve(dir), ext)
+  }
 
-    dbRef.client = null
-    dbRef.db = null
+  #resolve(dir: string, ...paths: string[]) {
+    return path.join(this.#vamPath, dir, ...paths)
   }
 }

@@ -11,16 +11,34 @@ export async function findFilesByExtension(
 ): Promise<string[]> {
   if (!ext.startsWith('.')) throw new Error('Extension must start with .')
 
-  const { stdout } = await execFileAsync('cmd.exe', [
-    '/c',
-    'dir',
-    '/s',
-    '/b',
-    `/a-d`,
-    path.join(root, `*${ext}`),
-  ])
+  try {
+    const { stdout } = await execFileAsync(
+      'cmd.exe',
+      ['/d', '/u', '/c', 'dir', '/s', '/b', '/a-d', path.join(root, `*${ext}`)],
+      {
+        encoding: 'buffer',
+        windowsHide: true,
+        maxBuffer: 128 * 1024 * 1024,
+      },
+    )
 
-  return stdout.split('\r\n').filter(Boolean)
+    const output = decodeCmdUnicodeOutput(stdout)
+    return output.split('\r\n').filter(Boolean)
+  } catch (e) {
+    console.error((e as Error)?.message)
+
+    return []
+  }
+}
+
+function decodeCmdUnicodeOutput(output: string | Buffer) {
+  if (typeof output === 'string') return output
+
+  if (output.length >= 2 && output[0] === 0xff && output[1] === 0xfe) {
+    return output.toString('utf16le', 2)
+  }
+
+  return output.toString('utf16le')
 }
 
 export async function* walkFiles(

@@ -1,5 +1,5 @@
-import { type API } from '@shared/api.ts'
 import { useEffect, useState } from 'react'
+import { type API } from '@shared/api.ts'
 
 const TIMEOUT_SECONDS = 10
 
@@ -83,12 +83,11 @@ async function callAbortableAPI<
 
     apiMethod(...args)
       .then((result) => {
-        cleanup()
         resolve(result as R)
       })
       .catch((err) => {
-        cleanup()
         reject(err)
       })
+      .finally(() => cleanup())
   })
 }

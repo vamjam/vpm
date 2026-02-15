@@ -1,10 +1,10 @@
 import AssetType from '@shared/AssetType.ts'
 import * as entity from '@shared/entities.ts'
 import { type Asset } from '@shared/types.ts'
-import { MessageChannelMain, app } from '~/core/electron.ts'
+import { app } from '~/core/electron.ts'
 import { fileURLToPath, path } from '~/core/node.ts'
 import { Service, expose } from '~/core/service.ts'
-import { eq, inArray } from '~/db/drizzle.ts'
+import { desc, eq, inArray } from '~/db/drizzle.ts'
 import { createWorker } from '~/worker/worker.ts'
 
 export class AssetService extends Service {
@@ -23,7 +23,7 @@ export class AssetService extends Service {
   }
 
   startScannerOnDelay() {
-    // setTimeout(() => this.startScanner(), 500)
+    // setTimeout(() => this.startScanner(), 1000)
   }
 
   startScanner() {
@@ -33,8 +33,8 @@ export class AssetService extends Service {
 
     createWorker({
       log: this.log,
-      filePath: path.join(app.getAppPath(), 'dist/scan.worker.js'),
-      serviceName: 'ScanWorker',
+      filePath: path.join(app.getAppPath(), 'dist/shallow.worker.js'),
+      serviceName: 'vpm scanner',
       args: {
         dir: vamPath,
         dbPath: fileURLToPath(this.dbURL),
@@ -50,16 +50,10 @@ export class AssetService extends Service {
     const records = await this.db
       ?.select()
       .from(entity.assets)
-      .leftJoin(
-        entity.creators,
-        eq(entity.assets.creatorId, entity.creators.id),
-      )
       .where(inArray(entity.assets.type, types))
+      .orderBy(desc(entity.assets.updatedAt))
 
-    return records?.map((r) => ({
-      ...r.assets,
-      creator: r.creators || null,
-    }))
+    return records
   }
 
   @expose('assets.edit')

@@ -57,24 +57,21 @@
     app-region: no-drag;
     cursor: default;
     border-radius: var(--br-3);
-    /* opacity: 0.7; */
 
     transition-property: background, color, opacity;
     transition-duration: 150ms;
     transition-timing-function: ease;
 
     &:hover {
-      background: var(--surface-3);
       opacity: 1;
+      background: var(--surface-3);
       color: var(--ink-full);
     }
 
-    &:active {
-      background: var(--surface-2);
-    }
-
+    &:active,
     &.active {
       background: var(--surface-4);
+      /* background: var(--accent-surface); */
       color: var(--ink-full);
     }
   }

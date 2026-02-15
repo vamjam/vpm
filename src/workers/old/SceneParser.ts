@@ -1,16 +1,17 @@
 import AdmZip, { IZipEntry } from 'adm-zip'
 import path from 'path'
-import AssetType from '@shared/AssetType.ts'
+import AssetType, { getExt, getPath } from '@shared/AssetType.ts'
+import { fromVarFileEntry } from './Dependency.ts'
 import { PendingRecord } from './types.ts'
 import { parseFileName } from './utils.ts'
 
-export async function fromAddonPackage(
+export async function fromVarFile(
   zip: AdmZip,
   filePath: string,
   relativePath: string,
 ) {
   const scenes = zip.getEntries().filter(isScene)
-  const sceneAssets: PendingRecord[] = []
+  const records: PendingRecord[] = []
 
   const parsedFileName = parseFileName(filePath)
 
@@ -20,7 +21,7 @@ export async function fromAddonPackage(
       path: path.join(relativePath, scene.entryName),
       size: scene.header.size,
       type: AssetType.Scene,
-      dependencies: findDependencies(scene),
+      dependencies: fromVarFileEntry(scene),
       creator: parsedFileName?.creatorName
         ? {
             name: parsedFileName.creatorName,
@@ -28,23 +29,15 @@ export async function fromAddonPackage(
         : undefined,
     }
 
-    sceneAssets.push(asset)
+    records.push(asset)
   }
 
-  return sceneAssets
-}
-
-const depFinder = /[^"]+:\/+.+\.(\w+)/g
-
-export function findDependencies(jsonEntry: IZipEntry) {
-  const jsonFile = jsonEntry.getData().toString('utf8')
-
-  return [...jsonFile.matchAll(depFinder)].map((e) => e[0])
+  return records
 }
 
 function isScene(entry: IZipEntry) {
   return (
-    entry.entryName.startsWith('Saves/scene') &&
-    entry.entryName.endsWith('.json')
+    entry.entryName.startsWith(getPath(AssetType.Scene)) &&
+    entry.entryName.endsWith(getExt(AssetType.Scene))
   )
 }
