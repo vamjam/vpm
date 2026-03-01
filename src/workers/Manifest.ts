@@ -2,7 +2,7 @@ type StringifiedBool = 'true' | 'false'
 
 export type ManifestDependency = {
   licenseType?: string
-  dependencies?: ManifestDependency
+  dependencies?: Record<string, ManifestDependency>
   missing?: StringifiedBool
 }
 

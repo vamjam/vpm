@@ -13,6 +13,9 @@ export const assets = t.sqliteTable(
       .text('id')
       .primaryKey()
       .$defaultFn(() => nanoid()),
+    parentId: t
+      .text('parent_id')
+      .references((): t.AnySQLiteColumn => assets.id),
     vamid: t.text('vamid'),
     importedAt: t
       .integer('imported_at', { mode: 'timestamp' })
@@ -21,6 +24,7 @@ export const assets = t.sqliteTable(
     createdAt: t.integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: t.integer('updated_at', { mode: 'timestamp' }),
     name: t.text('name').notNull(),
+    description: t.text('description'),
     path: t.text('path').notNull(),
     size: t.integer('size').notNull(),
     type: t.text('type').$type<AssetType>().notNull(),
@@ -36,10 +40,24 @@ export const assets = t.sqliteTable(
     creator: t.text('creator'),
   },
   (table) => [
-    t.uniqueIndex('ux_path').on(table.path),
+    t.uniqueIndex('ux_vamid').on(table.vamid),
+    t.index('ix_path').on(table.path),
     t.index('ix_type').on(table.type),
     t.index('ix_name').on(table.name),
     t.index('ix_created_at').on(table.createdAt),
     t.index('ix_creator').on(table.creator),
   ],
 )
+
+export const assetErrors = t.sqliteTable('asset_errors', {
+  id: t
+    .text('id')
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  path: t.text().notNull(),
+  event: t.text(),
+  message: t.text().notNull(),
+  createdAt: t
+    .integer('created_at', { mode: 'timestamp' })
+    .$defaultFn(() => new Date()),
+})

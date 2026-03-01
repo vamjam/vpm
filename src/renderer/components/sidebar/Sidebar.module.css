@@ -74,5 +74,9 @@
       /* background: var(--accent-surface); */
       color: var(--ink-full);
     }
+
+    &:focus {
+      outline: none;
+    }
   }
 }

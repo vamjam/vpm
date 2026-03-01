@@ -2,6 +2,7 @@ import { AssetService } from '~/asset/asset.service.ts'
 import { ConfigService } from '~/config/index.ts'
 import { HubService } from '~/hub/hub.service.ts'
 import { type MainLogger, createLogger } from '~/logger/index.ts'
+import { ScreenshotService } from '~/screenshot/screenshot.service.ts'
 import { BrowserWindow, app, dialog } from './electron.ts'
 import { path } from './node.ts'
 import { expose } from './service.ts'
@@ -11,6 +12,7 @@ import { expose } from './service.ts'
 const services = {
   asset: AssetService,
   hub: HubService,
+  screenshot: ScreenshotService,
 } as const
 
 type ServiceKey = keyof typeof services

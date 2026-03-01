@@ -5,7 +5,7 @@ import prettierRecommended from 'eslint-plugin-prettier/recommended'
 import reactHooks from 'eslint-plugin-react-hooks'
 import globals from 'globals'
 
-const tsFiles = ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts']
+const tsFiles = ['src/**/*', 'scripts/**/*']
 
 const typescriptConfigs = tseslint.configs['flat/recommended'].map(
   (config) => ({
@@ -68,9 +68,13 @@ export default [
   {
     files: tsFiles,
     rules: {
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
       ],
     },
   },

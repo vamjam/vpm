@@ -1,0 +1,20 @@
+.container {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--surface-x);
+  z-index: 1000;
+
+  &.shallow {
+    inset: 0;
+  }
+
+  &.deep {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 10vh;
+  }
+}

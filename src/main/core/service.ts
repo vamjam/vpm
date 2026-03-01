@@ -69,6 +69,7 @@ export abstract class Service<E extends EventMap = EventMap>
  * @param name The IPC channel name
  */
 export function expose(name: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function <This, T extends (this: This, ...args: any[]) => any>(
     target: T,
     context: ClassMethodDecoratorContext<This, T>,

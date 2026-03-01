@@ -1,5 +1,6 @@
 import fsp from 'node:fs/promises'
 import { IZipEntry } from 'adm-zip'
+import { ManifestDependency } from './Manifest.ts'
 
 /**
  * A regex that finds all "URL-looking" strings, within
@@ -10,6 +11,14 @@ import { IZipEntry } from 'adm-zip'
  *  "Scamp.AndreaMILFcollection.1:/Saves/scene/AndreaPillowHUMPING01STARTINGB.json"
  */
 const depFinder = /[^"]+:\/+.+\.(\w+)/g
+
+export function parseDependencies(
+  data?: Record<string, ManifestDependency>,
+): string[] {
+  return Object.entries(data ?? {}).flatMap(([key, value]) => {
+    return [key, ...parseDependencies(value.dependencies)]
+  })
+}
 
 /**
  * @param filePath The path to the scene file. This is
@@ -25,12 +34,21 @@ export async function fromSceneFile(filePath: string): Promise<string[]> {
   return findInString(data)
 }
 
-export function fromVarFileEntry(entry: IZipEntry): string[] {
-  const data = entry.getData().toString('utf-8')
+export function fromVarFileEntry(entry?: IZipEntry | null): string[] {
+  const data = entry?.getData().toString('utf-8')
 
   return findInString(data)
+    .map((url) => {
+      const depName = url.split(':').at(0)
+      const parts = depName?.split('.')
+
+      if (!parts || parts.length !== 3) return
+
+      return depName
+    })
+    .filter(Boolean) as string[]
 }
 
-function findInString(str: string) {
-  return [...str.matchAll(depFinder)].map((dep) => dep[0])
+function findInString(str?: string) {
+  return str ? [...str.matchAll(depFinder)].map((dep) => dep[0]) : []
 }

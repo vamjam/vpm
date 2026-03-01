@@ -16,6 +16,7 @@ type CreateWorkerOptions = {
   serviceName: string
   args: Record<string, string | undefined>
   onMessage?: <T>(message: T) => void
+  onExit?: () => Promise<void> | void
 }
 
 export function createWorker({
@@ -24,6 +25,7 @@ export function createWorker({
   serviceName,
   args,
   onMessage,
+  onExit,
 }: CreateWorkerOptions) {
   if (workers.has(serviceName)) {
     log.warn(`Worker [${serviceName}] already exists.`)
@@ -42,7 +44,7 @@ export function createWorker({
   })
 
   worker.stdout?.on('data', (data) => {
-    if (onMessage) onMessage(data.toString().trim())
+    onMessage?.(data.toString().trim())
     log.info(`[${serviceName}]: ${data.toString().trim()}`)
   })
 
@@ -60,7 +62,7 @@ export function createWorker({
     log.info(`Started worker process: ${filePath}`)
   })
 
-  worker.once('exit', (code) => {
+  worker.once('exit', async (code) => {
     const duration = pms(Date.now() - workers.get(serviceName)!.startTime)
 
     if (code === 0) {
@@ -76,6 +78,8 @@ export function createWorker({
     worker.removeAllListeners()
 
     workers.delete(serviceName)
+
+    await onExit?.()
 
     log.debug(`Worker process exited gracefully: ${filePath}`)
   })

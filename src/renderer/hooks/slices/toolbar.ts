@@ -1,12 +1,20 @@
 export type ToolbarView = 'grid' | 'list' | 'column' | 'gallery'
 
+export type SortBy =
+  | 'date-desc'
+  | 'date-asc'
+  | 'name-asc'
+  | 'name-desc'
+  | 'size-asc'
+  | 'size-desc'
+
 export interface ToolbarSlice {
   'thumbnail.width': number
   'thumbnail.setWidth': (width: number) => void
   'toolbar.view': ToolbarView
   'toolbar.setView': (view: ToolbarView) => void
-  'toolbar.sortBy': string
-  'toolbar.setSortBy': (sortBy: string) => void
+  'toolbar.sortBy': SortBy
+  'toolbar.setSortBy': (sortBy: SortBy) => void
   'toolbar.search': string
   'toolbar.setSearch': (search: string) => void
 }
@@ -27,7 +35,7 @@ export default function create(set: SetState): ToolbarSlice {
         'toolbar.view': view,
       }))
     },
-    'toolbar.sortBy': '',
+    'toolbar.sortBy': 'date-desc',
     'toolbar.setSortBy': (sortBy) => {
       set(() => ({
         'toolbar.sortBy': sortBy,

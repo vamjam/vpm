@@ -1,22 +1,22 @@
 import { useMemo } from 'react'
 import { List as ReactWindowList, RowComponentProps } from 'react-window'
-import { Asset } from '@shared/types.ts'
-import Cell from './Cell.tsx'
 import styles from './List.module.css'
-import { ViewComponentProps } from './types.ts'
+import { CellWrapperData, ViewComponentProps } from './types.ts'
 
-export default function List({
+export default function List<T extends object>({
   data,
   width = 0,
   height = 0,
   gap = 0,
-}: ViewComponentProps) {
-  const rowData = useMemo<RowData>(
+  cell,
+}: ViewComponentProps<T>) {
+  const rowData = useMemo<Omit<CellWrapperData<T>, 'style'>>(
     () => ({
       data,
       gap,
+      cell,
     }),
-    [data, gap],
+    [data, gap, cell],
   )
 
   return (
@@ -33,20 +33,18 @@ export default function List({
   )
 }
 
-type RowData = {
-  data?: Asset[]
-  gap?: number
-}
-
-function CellWrapper({
+function CellWrapper<T extends object>({
   index = 0,
   data,
   style,
   gap = 0,
-}: RowComponentProps<RowData>) {
+  cell,
+}: RowComponentProps<CellWrapperData<T>>) {
   const asset = data?.[index]
 
   if (!asset) return null
+
+  const Cell = cell
 
   return <Cell data={asset} gap={gap} style={style} />
 }

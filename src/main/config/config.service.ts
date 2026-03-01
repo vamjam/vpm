@@ -9,14 +9,8 @@ export class ConfigService {
   path: string
 
   constructor() {
-    const {
-      properties,
-      type,
-      required,
-      additionalProperties,
-      definitions,
-      ...rest
-    } = schema
+    const { properties, type, required, additionalProperties, definitions } =
+      schema
 
     this.#store = new ConfigStore({
       projectName: 'vpm',

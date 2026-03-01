@@ -1,4 +1,6 @@
 import path from 'node:path'
+import AssetType from '@shared/AssetType.ts'
+import { presetTypes } from './assettype.map.ts'
 
 export function parseArgs() {
   const args = process.argv.slice(2)
@@ -29,4 +31,12 @@ export function parseFileName(filePath: string) {
     packageName,
     version,
   }
+}
+
+export function parseName(assetType: AssetType, filePath: string) {
+  if (presetTypes.includes(assetType as AssetType)) {
+    return path.basename(filePath, '.vap').replace('Preset_', '')
+  }
+
+  return path.basename(filePath).replace(/\.[^/.]+$/, '')
 }

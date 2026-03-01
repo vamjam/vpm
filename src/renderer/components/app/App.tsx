@@ -2,9 +2,10 @@ import { Fragment, useEffect } from 'react'
 import { useLocation } from 'react-router'
 import Sidebar from '~/components/sidebar/Sidebar.tsx'
 import useStore from '~/hooks/useStore.ts'
+import Scanning from '../scanning/Scanning.tsx'
 import styles from './App.module.css'
-import Footer from './Footer.tsx'
 import Routes from './Routes.tsx'
+import Footer from './footer/Footer.tsx'
 
 export default function App() {
   const location = useLocation()
@@ -21,6 +22,7 @@ export default function App() {
 
   return (
     <Fragment>
+      <Scanning />
       <div className={styles.container}>
         <Sidebar className={styles.sidebar} />
         <div className={styles.content}>

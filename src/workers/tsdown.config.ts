@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['./shallow.worker.ts'],
+  entry: ['./scanner.worker.ts'],
   outDir: '../../dist',
   format: ['esm'],
   tsconfig: './tsconfig.json',

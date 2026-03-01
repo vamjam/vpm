@@ -24,8 +24,8 @@ export async function findFilesByExtension(
 
     const output = decodeCmdUnicodeOutput(stdout)
     return output.split('\r\n').filter(Boolean)
-  } catch (e) {
-    console.error((e as Error)?.message)
+  } catch {
+    console.log(`No files found in ${root}`)
 
     return []
   }

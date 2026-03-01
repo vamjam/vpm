@@ -8,6 +8,8 @@ import { useCallback } from 'react'
 import buttonGroupStyles from '~/components/input/button-group/ButtonGroup.module.css'
 import ButtonGroup from '~/components/input/button-group/ButtonGroup.tsx'
 import Button from '~/components/input/button/Button.tsx'
+import Label from '~/components/input/label/Label.tsx'
+import Select from '~/components/input/select/Select.tsx'
 import Textbox from '~/components/input/textbox/Textbox.tsx'
 import Stack from '~/components/layout/stack/Stack.tsx'
 import { ToolbarView } from '~/hooks/slices/toolbar.ts'
@@ -17,6 +19,8 @@ import styles from './Toolbar.module.css'
 export default function Toolbar() {
   const view = useStore((state) => state['toolbar.view'])
   const setView = useStore((state) => state['toolbar.setView'])
+  const sortBy = useStore((state) => state['toolbar.sortBy'])
+  const setSortBy = useStore((state) => state['toolbar.setSortBy'])
 
   const viewButtonProps = useCallback(
     (myView: ToolbarView) => ({
@@ -37,10 +41,23 @@ export default function Toolbar() {
           <ListIcon />
         </Button>
       </ButtonGroup>
+      <Label>
+        Sort by:
+        <Select options={sortListOptions} value={sortBy} onChange={setSortBy} />
+      </Label>
       <Search />
     </Stack>
   )
 }
+
+const sortListOptions = [
+  { value: 'date-desc', label: 'Date (newest first)' },
+  { value: 'date-asc', label: 'Date (oldest first)' },
+  { value: 'name-asc', label: 'Name (A-Z)' },
+  { value: 'name-desc', label: 'Name (Z-A)' },
+  { value: 'size-asc', label: 'Size (smallest first)' },
+  { value: 'size-desc', label: 'Size (largest first)' },
+]
 
 function Search() {
   return <Textbox icons={[{ position: 'start', element: <SearchIcon /> }]} />

@@ -1,4 +1,4 @@
-import { Packages, ResourceDetail } from './types.ts'
+import { GetResourcesResponse, Packages, ResourceDetail } from './types.ts'
 
 type Action = 'getResourceDetail' | 'getResources' | 'findPackages'
 
@@ -10,7 +10,7 @@ export async function getResources(
   pageSize: number,
   category: Category,
   sort: Sort,
-): Promise<Packages | undefined> {
+): Promise<GetResourcesResponse | undefined> {
   const payload = {
     page: page.toString(),
     perpage: pageSize.toString(),
@@ -20,7 +20,7 @@ export async function getResources(
     location: 'Hub And Dependencies',
   }
 
-  return makeRequest<Packages>('getResources', payload)
+  return makeRequest('getResources', payload)
 }
 
 export async function findPackage(
@@ -82,6 +82,8 @@ async function makeRequest<T>(
         action,
       }),
     })
+
+    console.log('VaM API response:', response)
 
     if (response.ok) {
       return response.json() as T

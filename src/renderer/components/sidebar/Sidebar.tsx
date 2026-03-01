@@ -1,7 +1,7 @@
-import AssetType from '@shared/AssetType.ts'
 import clsx from 'clsx'
 import { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from 'react'
 import { Link, useLocation } from 'react-router'
+import AssetType from '@shared/AssetType.ts'
 import {
   AddonsIcon,
   HubIcon,

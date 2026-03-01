@@ -8,6 +8,4 @@ export default defineConfig({
   tsconfig: './src/main/tsconfig.json',
   external: ['electron'],
   sourcemap: true,
-  // clean: false,
-  // fixedExtension: false,
 })
